@@ -8,8 +8,8 @@
 # Hay que mejorarlo, para que no acepte entradas no validas y si acaso que muestre la ayuda
 if [ -z "$1" ]
 then
-        echo "Usage: ./surgathtb.sh <IP> <NAME OF MACHINE>"
-        echo "Example: ./surgathtb.sh 10.10.10.129 pikathree"
+        echo "Usage: ./theplayer.sh <IP> <NAME OF MACHINE>"
+        echo "Example: ./theplayer.sh 10.10.10.129 pikathree"
         exit 1
 fi
 
