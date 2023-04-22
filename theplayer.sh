@@ -4,8 +4,6 @@
 # version="0.0.4"
 # Decidir español o ingles
 
-# Parameters Fail
-# Hay que mejorarlo, para que no acepte entradas no validas y si acaso que muestre la ayuda
 if [ -z "$1" ]
 then
         echo "Usage: ./theplayer.sh <IP> <NAME OF MACHINE>"
@@ -16,7 +14,6 @@ fi
 ipvictima=$1
 nombre=$2
 
-# En futuras versiones, revisando la salida xml de nmap, que lo agregue si es necesario
 echo "[+] Revisando si exite $nombre.htb en el archivo Host"
 if [ $(cat /etc/hosts | grep -c "$ipvictima $nombre.htb") = 1 ]
     then
@@ -28,7 +25,7 @@ if [ $(cat /etc/hosts | grep -c "$ipvictima $nombre.htb") = 1 ]
     fi
 echo
 
-echo "[+] rapid scan"
+echo "[+] Escaneo rapido"
 sudo nmap -T4 -F $ipvictima
 
 echo "[+] Empezando el escaneo completo... Detectando puertos"
@@ -42,7 +39,7 @@ urls=$(grep -oP '(http|https)://[\w\-\.]+\.[a-zA-Z]+(:\d+)?(/[\w/_\.]*)?' Result
 for url in $urls; do
     if ! grep -q "$url" /etc/hosts; then
         echo "Adding $url to /etc/hosts"
-        echo "$(dig +short "$(echo "$url" | sed 's/http[s]*:\/\///' | cut -d/ -f1)") $nombre.htb # added by theplayer.sh" | sudo tee -a /etc/hosts >/dev/null
+        echo "$ipvictima $(dig +short "$(echo "$url" | sed 's/http[s]*:\/\///' | cut -d/ -f1)") $nombre.htb # added by theplayer.sh" | sudo tee -a /etc/hosts >/dev/null
     fi
 done
 echo "[+] Buscando URLs en el resultado de nmap..."
