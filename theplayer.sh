@@ -61,4 +61,4 @@ else
 fi
 
 echo "[+] Searching eXploiTs..."
-gnome-terminal --working-directory="$PWD" --title="searchsploit Results for $nombre" --command="searchsploit --nmap ResultNmap$nombre.xml"
+gnome-terminal --working-directory="$PWD" --title="searchsploit Results for $nombre" -- "searchsploit --nmap ResultNmap$nombre.xml"
