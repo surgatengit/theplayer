@@ -1,8 +1,6 @@
 #!/bin/bash
 
-# By Surgat Ramos
-# version="0.0.4"
-# Decidir español o ingles
+# Surgat Ramos 0.0.4
 
 if [ -z "$1" ]
 then
@@ -26,9 +24,7 @@ if [ $(cat /etc/hosts | grep -c "$ipvictima $nombre.htb") = 1 ]
 echo
 
 echo "[+] Escaneo rapido"
-#Prueba para ver si se puede directamente abrir un navegador al encontrarla
-sudo nmap -T4 -F --script=http-title,ssl-cert $ipvictima | awk '/(http|https)/ {system("firefox " $NF "&")}'
-# sudo nmap -T4 -F $ipvictima
+sudo nmap -T4 -F $ipvictima
 
 echo "[+] Empezando el escaneo completo... Detectando puertos"
 ports=$(nmap -p- -n -Pn --min-rate=3000 $ipvictima | grep ^[0-9] | cut -d '/' -f 1 | tr '\n' ',' | sed s/,$//)
@@ -57,9 +53,9 @@ else
     for url in $urls
     do
         echo "[+] Abriendo nueva terminal para ejecutar wfuzz en $url"
-        x-terminal-emulator -e /usr/bin/zsh -hold -c "wfuzz -c -w /usr/share/seclists/Discovery/Web-Content/combined_words.txt --hc 404,302,400 -u '$url/FUZZ'"
+        gnome-terminal -- wfuzz -c -w /usr/share/seclists/Discovery/Web-Content/combined_words.txt --hc 404,302,400 -u "$url/FUZZ"
     done
 fi
 
 echo "[+] Searching eXploiTs..."
-x-terminal-emulator -e /usr/bin/zsh -hold -c "searchsploit --nmap ResultNmap$nombre.xml"
+gnome-terminal --search --working-directory="$PWD" --title="searchsploit Results for $nombre" --command="searchsploit --nmap ResultNmap$nombre.xml"
