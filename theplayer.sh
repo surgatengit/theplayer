@@ -26,7 +26,9 @@ if [ $(cat /etc/hosts | grep -c "$ipvictima $nombre.htb") = 1 ]
 echo
 
 echo "[+] Escaneo rapido"
-sudo nmap -T4 -F $ipvictima
+#Prueba para ver si se puede directamente abrir un navegador al encontrarla
+sudo nmap -T4 -F --script=http-title,ssl-cert $ipvictima | awk '/(http|https)/ {system("firefox " $NF "&")}'
+# sudo nmap -T4 -F $ipvictima
 
 echo "[+] Empezando el escaneo completo... Detectando puertos"
 ports=$(nmap -p- -n -Pn --min-rate=3000 $ipvictima | grep ^[0-9] | cut -d '/' -f 1 | tr '\n' ',' | sed s/,$//)
