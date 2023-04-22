@@ -56,10 +56,10 @@ else
     for url in $urls
     do
         echo "[+] Abriendo nueva terminal para ejecutar wfuzz en $url"
-        gnome-terminal -- wfuzz -c -w /usr/share/seclists/Discovery/Web-Content/combined_words.txt --hc 404,302,400 -u "$url/FUZZ"
+        x-terminal-emulator -e /usr/bin/zsh -c "wfuzz -c -w /usr/share/seclists/Discovery/Web-Content/combined_words.txt --hc 404,302,400 -u '$url/FUZZ'"
     done
 fi
 
 
 echo "[+] Searching eXploiTs..."
-gnome-terminal --search --working-directory="$PWD" --title="searchsploit Results for $nombre" --command="searchsploit --nmap ResultNmap$nombre.xml"
+x-terminal-emulator -e /usr/bin/zsh -c "searchsploit --nmap ResultNmap$nombre.xml"
