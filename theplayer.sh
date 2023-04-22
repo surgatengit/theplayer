@@ -33,17 +33,18 @@ echo "[+] Escaneo completo... Analizando los Puertos Abiertos"
 echo $ports
 nmap -p$ports -n -sV -sC $ipvictima -oA ResultNmap$nombre
 
-# Check for URLs in Nmap output and add them to /etc/hosts
+# Buscar URLs en nmap, y agregarlas a host si no existen
 echo "[+] Searching for URLs in Nmap output..."
 urls=$(grep -oP '(http|https)://[\w\-\.]+\.[a-zA-Z]+(:\d+)?(/[\w/_\.]*)?' ResultNmap$nombre.xml)
 for url in $urls; do
     if ! grep -q "$url" /etc/hosts; then
         echo "Adding $url to /etc/hosts"
         echo "$ipvictima $(dig +short "$(echo "$url" | sed 's/http[s]*:\/\///' | cut -d/ -f1)") $nombre.htb # added by theplayer.sh" | sudo tee -a /etc/hosts >/dev/null
+    else
+        echo "Skipping $url because it already exists in /etc/hosts"
     fi
 done
 echo "[+] Buscando URLs en el resultado de nmap..."
-echo "[+] Searching for URLs in Nmap output..."
 urls=$(grep -oP '(http|https)://[\w\-\.]+\.[a-zA-Z]+(:\d+)?(/[\w/_\.]*)?' ResultNmap$nombre.xml)
 
 if [ -z "$urls" ]
@@ -60,4 +61,4 @@ else
 fi
 
 echo "[+] Searching eXploiTs..."
-gnome-terminal --search --working-directory="$PWD" --title="searchsploit Results for $nombre" --command="searchsploit --nmap ResultNmap$nombre.xml"
+gnome-terminal --working-directory="$PWD" --title="searchsploit Results for $nombre" --command="searchsploit --nmap ResultNmap$nombre.xml"
