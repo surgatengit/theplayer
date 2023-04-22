@@ -12,16 +12,17 @@ fi
 ipvictima=$1
 nombre=$2
 
-echo "[+] Revisando si exite $nombre.htb en el archivo Host"
-if [ $(cat /etc/hosts | grep -c "$ipvictima $nombre.htb") = 1 ]
-    then
-        echo
-        echo "Existe $ipvictima $nombre.htb en /etc/hosts con lo que no se agregara."
-    else
-        echo "Agregando $ipvictima $nombre.htb a /etc/hosts"
-        echo "$ipvictima $nombre.htb" | sudo tee -a /etc/hosts
-    fi
-echo
+# Mas abajo queda solucionado agregar a host urls, si no da problemas borrar
+#echo "[+] Revisando si exite $nombre.htb en el archivo Host"
+#if [ $(cat /etc/hosts | grep -c "$ipvictima $nombre.htb") = 1 ]
+#    then
+#        echo
+#        echo "Existe $ipvictima $nombre.htb en /etc/hosts con lo que no se agregara."
+#    else
+#        echo "Agregando $ipvictima $nombre.htb a /etc/hosts"
+#        echo "$ipvictima $nombre.htb" | sudo tee -a /etc/hosts
+#    fi
+#echo
 
 echo "[+] Escaneo rapido"
 sudo nmap -T4 -F $ipvictima
