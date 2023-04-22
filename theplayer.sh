@@ -30,6 +30,7 @@ sudo nmap -T4 -F $ipvictima
 echo "[+] Empezando el escaneo completo... Detectando puertos"
 ports=$(nmap -p- -n -Pn --min-rate=3000 $ipvictima | grep ^[0-9] | cut -d '/' -f 1 | tr '\n' ',' | sed s/,$//)
 echo "[+] Escaneo completo... Analizando los Puertos Abiertos"
+echo $ports
 nmap -p$ports -n -sV -sC $ipvictima -oA ResultNmap$nombre
 
 # Check for URLs in Nmap output and add them to /etc/hosts
