@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # By Surgat Ramos
-# version="0.0.2"
+# version="0.0.4"
 # Decidir español o ingles
 
 # Parameters Fail
@@ -38,7 +38,7 @@ nmap -p$ports -n -sV -sC $ipvictima -oA ResultNmap$nombre
 
 # Check for URLs in Nmap output and add them to /etc/hosts
 echo "[+] Searching for URLs in Nmap output..."
-urls=$(grep -oE 'https?://[^[:space:]]+' ResultNmap$nombre.xml)
+urls=$(grep -oP '(http|https)://[\w\-\.]+\.[a-zA-Z]+(:\d+)?(/[\w/_\.]*)?' ResultNmap$nombre.xml)
 for url in $urls; do
     if ! grep -q "$url" /etc/hosts; then
         echo "Adding $url to /etc/hosts"
@@ -46,7 +46,9 @@ for url in $urls; do
     fi
 done
 echo "[+] Buscando URLs en el resultado de nmap..."
-urls=$(grep -oP '(?<=<url>).*(?=</url>)' ResultNmap$nombre.xml)
+echo "[+] Searching for URLs in Nmap output..."
+urls=$(grep -oP '(http|https)://[\w\-\.]+\.[a-zA-Z]+(:\d+)?(/[\w/_\.]*)?' ResultNmap$nombre.xml)
+
 if [ -z "$urls" ]
 then
     echo "No se encontraron URLs en el resultado de nmap."
@@ -56,10 +58,9 @@ else
     for url in $urls
     do
         echo "[+] Abriendo nueva terminal para ejecutar wfuzz en $url"
-        x-terminal-emulator -e /usr/bin/zsh -c "wfuzz -c -w /usr/share/seclists/Discovery/Web-Content/combined_words.txt --hc 404,302,400 -u '$url/FUZZ'"
+        x-terminal-emulator -e /usr/bin/zsh -hold -c "wfuzz -c -w /usr/share/seclists/Discovery/Web-Content/combined_words.txt --hc 404,302,400 -u '$url/FUZZ'"
     done
 fi
 
-
 echo "[+] Searching eXploiTs..."
-x-terminal-emulator -e /usr/bin/zsh -c "searchsploit --nmap ResultNmap$nombre.xml"
+x-terminal-emulator -e /usr/bin/zsh -hold -c "searchsploit --nmap ResultNmap$nombre.xml"
