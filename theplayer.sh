@@ -36,5 +36,30 @@ ports=$(nmap -p- -n -Pn --min-rate=3000 $ipvictima | grep ^[0-9] | cut -d '/' -f
 echo "[+] Escaneo completo... Analizando los Puertos Abiertos"
 nmap -p$ports -n -sV -sC $ipvictima -oA ResultNmap$nombre
 
+# Check for URLs in Nmap output and add them to /etc/hosts
+echo "[+] Searching for URLs in Nmap output..."
+urls=$(grep -oE 'https?://[^[:space:]]+' ResultNmap$nombre.xml)
+for url in $urls; do
+    if ! grep -q "$url" /etc/hosts; then
+        echo "Adding $url to /etc/hosts"
+        echo "$(dig +short "$(echo "$url" | sed 's/http[s]*:\/\///' | cut -d/ -f1)") $nombre.htb # added by theplayer.sh" | sudo tee -a /etc/hosts >/dev/null
+    fi
+done
+echo "[+] Buscando URLs en el resultado de nmap..."
+urls=$(grep -oP '(?<=<url>).*(?=</url>)' ResultNmap$nombre.xml)
+if [ -z "$urls" ]
+then
+    echo "No se encontraron URLs en el resultado de nmap."
+else
+    echo "[+] URLs encontradas: "
+    echo "$urls"
+    for url in $urls
+    do
+        echo "[+] Abriendo nueva terminal para ejecutar wfuzz en $url"
+        gnome-terminal -- wfuzz -c -w /usr/share/seclists/Discovery/Web-Content/combined_words.txt --hc 404,302,400 -u "$url/FUZZ"
+    done
+fi
+
+
 echo "[+] Searching eXploiTs..."
-searchsploit --nmap ResultNmap$nombre.xml
+gnome-terminal --search --working-directory="$PWD" --title="searchsploit Results for $nombre" --command="searchsploit --nmap ResultNmap$nombre.xml"
