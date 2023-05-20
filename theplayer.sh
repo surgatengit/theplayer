@@ -79,4 +79,4 @@ fi
 echo "[+] Searching eXploiTs..."
 searchsploit --nmap ResultNmap$nombre.xml -v --id
 echo "[+] Vulnerabilidades con nmap..."
-nmap -sV -A --script vuln $ipvictima
+nmap -sV -Pn -A --script vuln $ipvictima
