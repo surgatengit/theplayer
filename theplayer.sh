@@ -18,7 +18,7 @@ fi
 ipvictima=$1
 nombre=$2
 
-echo -e "${YELLOW}[+] Escaneo rapido... {NC}"
+echo -e "${YELLOW}[+] Escaneo rapido... ${NC}"
 sudo nmap -T4 -F $ipvictima
 
 echo -e "${YELLOW}[-] Empezando el escaneo completo... detectando puertos${NC}"
@@ -49,8 +49,8 @@ if echo "$ports" | grep -q "139\|445"; then
     crackmapexec smb $ipvictima --pass-pol -u "" -p ""
     crackmapexec smb $ipvictima --pass-pol -u guest
 fi
-
-nmap -p$ports -n -sV -sC $ipvictima -oA ResultNmap$nombre
+echo "[+] lanzando nmap tipo ippsec quitando ping"
+nmap -p$ports -sV -sC -Pn $ipvictima -oA ResultNmap$nombre
 
 # Buscar URLs en nmap, y agregarlas a host si no existen
 echo "[+] Searching for URLs in Nmap output..."
