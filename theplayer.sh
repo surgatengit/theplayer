@@ -1,12 +1,12 @@
 #!/bin/bash
-# Surgat Ramos 0.0.4
+# Surgat Ramos 0.0.4, vs in english for Yuma
 
-BLUE='\033[0;34m' # Color azul
-GREEN='\033[0;32m' # Color verde
-YELLOW='\033[1;33m' # Color amarillo
+BLUE='\033[0;34m'
+GREEN='\033[0;32m' 
+YELLOW='\033[1;33m' 
 NC='\033[0m' # No color
 
-# usare -e para poder usar las secuencias de escape ANSI
+# use -e para los colores las secuencias -amsi
 
 if [ -z "$1" ]
 then
@@ -18,28 +18,28 @@ fi
 ipvictima=$1
 nombre=$2
 
-echo -e "${YELLOW}[+] Escaneo rapido... ${NC}"
+echo -e "${YELLOW}[+] Fast Escan... ${NC}"
 sudo nmap -T4 -F $ipvictima
 
-echo -e "${YELLOW}[-] Empezando el escaneo completo... detectando puertos${NC}"
+echo -e "${YELLOW}[-] Starts complete NMAP... detect ports${NC}"
 ports=$(nmap -p- -n -Pn --min-rate=3000 $ipvictima | grep ^[0-9] | cut -d '/' -f 1 | tr '\n' ',' | sed s/,$//)
-echo -e "${GREEN}[+] Escaneo completo... analizando los puertos abiertos${NC}"
+echo -e "${GREEN}[+] Complete Scan... analizing open ports${NC}"
 echo $ports
 
-# Verificar si los puertos 80 o 443 están abiertos http https
+# Verify ports 80.443 is opens http https
 if echo "$ports" | grep -q "80\|443"; then
-    echo "${GREEN}[+] Se encontraron puertos 80 o 443 abiertos en la IP $ipvictima${NC}"
-    echo -e "${BLUE}Lanza en otro terminal nikto:${NC}"
+    echo "${GREEN}[+] Find 80 and 443 ports opnen in IP $ipvictima${NC}"
+    echo -e "${BLUE}you should run nikto: in other terminal${NC}"
     echo -e "${BLUE}nikto -h http:$ipvictima -C all${NC}"
     echo -e "${BLUE}o ${NC}"
     echo -e "${BLUE}nikto -h https:$ipvictima -C all${NC}"
-    echo "[+] Lanzando curl a la IP $ipvictima"
+    echo "[+] curl to IP $ipvictima"
     curl -vvv $ipvictima
 fi
-# Verificar si los puertos 139 o 445 estan abiertos smb
+# Verify ports 139 o 445 are open smb
 if echo "$ports" | grep -q "139\|445"; then
-    echo "${GREEN}[+] Se encontraron puertos 139 o 445 abiertos en la IP $ipvictima${NC}"
-    echo "${YELLOW}[-] Lanzando enumeraciones SMB Sin Credenciales${NC}"
+    echo "${GREEN}[+] Find 139 o 445 open, en IP $ipvictima${NC}"
+    echo "${YELLOW}[-] Runing enumeration SMB withowt Credentials${NC}"
     nbtscan $ipvictima
     smbmap -H $ipvictima
     smbmap -H $ipvictima -u null -p null
@@ -49,34 +49,34 @@ if echo "$ports" | grep -q "139\|445"; then
     crackmapexec smb $ipvictima --pass-pol -u "" -p ""
     crackmapexec smb $ipvictima --pass-pol -u guest
 fi
-echo "[+] lanzando nmap tipo ippsec quitando ping"
+echo "[+] launch NMAP -sV -sC -Pn nmap"
 nmap -p$ports -sV -sC -Pn $ipvictima -oA ResultNmap$nombre
 
-# Buscar URLs en nmap, y agregarlas a host si no existen
+# Searching URLs in nmap and add to /host file if no exist
 echo "[+] Searching for URLs in Nmap output..."
 urls=$(grep -oP '(http|https)://[\w\-\.]+\.[a-zA-Z]+(:\d+)?(/[\w/_\.]*)?' ResultNmap$nombre.xml)
 for url in $urls; do
     if ! grep -q "$url" /etc/hosts; then
         echo "Adding $url to /etc/hosts"
-        echo "$ipvictima $(dig +short "$(echo "$url" | sed 's/http[s]*:\/\///' | cut -d/ -f1)") $nombre.htb # agregada por eljugador.sh" | sudo tee -a /etc/hosts >/dev/null
+        echo "$ipvictima $(dig +short "$(echo "$url" | sed 's/http[s]*:\/\///' | cut -d/ -f1)") $nombre.htb # add by theplayer.sh" | sudo tee -a /etc/hosts >/dev/null
     else
         echo "Skipping $url because it already exists in /etc/hosts"
     fi
 done
 if [ -z "$urls" ]
 then
-    echo -e "${BLUE}No se encontraron URLs en el resultado de nmap.${NC}"
+    echo -e "${BLUE}No URLs found in results of nmap.${NC}"
 else
-    echo "[+] URLs encontradas: "
+    echo "[+] URLs founds: "
     echo "$urls"
     for url in $urls
     do
-        echo "[+] Ejecutando wfuzz en $url"
+        echo "[+] LAunching wfuzz in $url"
         wfuzz -c -w /usr/share/seclists/Discovery/Web-Content/combined_words.txt --hc 404,302,400 -u "$url/FUZZ"
     done
 fi
 
 echo "[+] Searching eXploiTs..."
 searchsploit --nmap ResultNmap$nombre.xml -v --id
-echo "[+] Vulnerabilidades con nmap..."
+echo "[+] Search Vulns con nmap..."
 nmap -sV -Pn -A --script vuln $ipvictima
