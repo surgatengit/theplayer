@@ -1,27 +1,27 @@
 #!/bin/bash
-# Surgat Ramos 0.0.4, vs in english for Yuma
+# Surgat Ramos 0.0.4
 
 BLUE='\033[0;34m'
 GREEN='\033[0;32m' 
 YELLOW='\033[1;33m' 
 NC='\033[0m' # No color
 
-# use -e para los colores las secuencias -amsi
+# -e in echo for ANSI escapes
 
 if [ -z "$1" ]
 then
         echo "Usage: ./theplayer.sh <IP> <NAME OF MACHINE>"
-        echo "Example: ./theplayer.sh 10.10.10.129 pikathree"
+        echo "Example: ./theplayer.sh 10.10.10.129 easymachine"
         exit 1
 fi
 
 ipvictima=$1
 nombre=$2
 
-echo -e "${YELLOW}[+] Fast Escan... ${NC}"
+echo -e "${YELLOW}[+] Fast Scan... ${NC}"
 sudo nmap -T4 -F $ipvictima
 
-echo -e "${YELLOW}[-] Starts complete NMAP... detect ports${NC}"
+echo -e "${YELLOW}[-] Starts complete NMAP... search all ports open${NC}"
 ports=$(nmap -p- -n -Pn --min-rate=3000 $ipvictima | grep ^[0-9] | cut -d '/' -f 1 | tr '\n' ',' | sed s/,$//)
 echo -e "${GREEN}[+] Complete Scan... analizing open ports${NC}"
 echo $ports
@@ -76,7 +76,7 @@ else
     done
 fi
 
-echo "[+] Searching eXploiTs..."
+echo "[+] Searching exploitdb..."
 searchsploit --nmap ResultNmap$nombre.xml -v --id
 echo "[+] Search Vulns con nmap..."
 nmap -sV -Pn -A --script vuln $ipvictima
