@@ -33,7 +33,7 @@ echo $ports
 if echo "$ports" | grep -q "21"; then
   echo -e "${YELLOW}Banner del servidor FTP${NC}"
   telnet -n $ipvictima 21
-  wget --no-passive-ftp --mirror 'ftp://anonymous:anonymous@ipvictima' 
+  wget --no-passive-ftp --mirror 'ftp://anonymous:anonymous@$ipvictima' 
   
 fi
 
