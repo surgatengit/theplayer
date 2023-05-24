@@ -47,6 +47,7 @@ if echo "$ports" | grep -q "80\|443"; then
     echo -e "${GREEN}You should run nikto in other terminal${NC}"
     echo -e "${GREEN}nikto -h http://$ipvictima -C all${NC}"
     echo ""
+    echo -e "${GREEN}wfuzz -c -w /usr/share/seclists/Discovery/Web-Content/combined_words.txt --hc 404,302,400 -u "$ipvictima/FUZZ"${NC}"
     echo -e "${GREEN}nikto -h https://$ipvictima -C all${NC}"
     echo ""
     echo -e "${LIGHT_CYAN}[+] curl to IP $ipvictima${NC}"
