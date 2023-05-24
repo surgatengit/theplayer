@@ -29,6 +29,14 @@ ports=$(nmap -p- -n -Pn --min-rate=3000 $ipvictima | grep ^[0-9] | cut -d '/' -f
 echo -e "${GREEN}[+] Complete Scan... analizing open ports${NC}"
 echo $ports
 
+# Verify ports 21 is open ftp
+if echo "$ports" | grep -q "21"; then
+  echo -e "${YELLOW}Banner del servidor FTP${NC}"
+  telnet -n $ipvictima 21
+  wget --no-passive-ftp --mirror 'ftp://anonymous:anonymous@ipvictima' 
+  
+fi
+
 # Verify ports 80.443 is opens http https
 if echo "$ports" | grep -q "80\|443"; then
     echo -e "${YELLOW}[+] Find 80 and 443 ports opnen in IP $ipvictima${NC}"
@@ -56,7 +64,7 @@ echo -e "${YELLOW}[+] launch NMAP -sV -sC -Pn nmap${NC}"
 nmap -p$ports -sV -sC -Pn $ipvictima -oA ResultNmap$nombre
 
 # Searching URLs in nmap and add to /host file if no exist
-echo -E "${YELLOW}[+] Searching for URLs in Nmap output...${NC}"
+echo -e "${YELLOW}[+] Searching for URLs in Nmap output...${NC}"
 urls=$(grep -oP '(http|https)://[\w\-\.]+\.[a-zA-Z]+(:\d+)?(/[\w/_\.]*)?' ResultNmap$nombre.xml)
 for url in $urls; do
     if ! grep -q "$url" /etc/hosts; then
