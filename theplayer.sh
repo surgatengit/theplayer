@@ -46,13 +46,15 @@ if echo "$ports" | grep -q "80\|443"; then
     echo -e "${YELLOW}[+] Find 80 and 443 ports open in IP $ipvictima${NC}"
     echo -e "${GREEN}You should run nikto in other terminal${NC}"
     echo -e "${GREEN}nikto -h http://$ipvictima -C all${NC}"
-    echo -e "${BLUE}o ${NC}"
+    echo ""
     echo -e "${GREEN}nikto -h https://$ipvictima -C all${NC}"
+    echo ""
     echo -e "${LIGHT_CYAN}[+] curl to IP $ipvictima${NC}"
     echo -e "${YELLOW}"
     curl -vvv $ipvictima
     echo -e "${NC}"
 fi
+# Mejorar, probar leer de xml cme o etc...
 # Verify ports 139 o 445 are open smb
 if echo "$ports" | grep -q "139\|445"; then
     echo -e "${GREEN}[+] Find 139 o 445 open, en IP $ipvictima${NC}"
