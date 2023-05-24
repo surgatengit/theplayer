@@ -79,7 +79,8 @@ else
         wfuzz -c -w /usr/share/seclists/Discovery/Web-Content/combined_words.txt --hc 404,302,400 -u "$url/FUZZ"
     done
 fi
-
+# foldername
+foldername="ftp$nombre"
 # Buscar la etiqueta <port> con el atributo portid="21" y estado state="open"
 port_info=$(xmllint --xpath '//port[@portid="21" and state/@state="open"]' ResultNmap$nombre.xml)
 
