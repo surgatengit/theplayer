@@ -30,12 +30,6 @@ ports=$(nmap -p- -n -Pn --min-rate=3000 $ipvictima | grep ^[0-9] | cut -d '/' -f
 echo -e "${GREEN}[+] Complete Scan... analizing open ports${NC}"
 echo $ports
 
-# Verify ports 21 is open ftp
-if echo "$ports" | grep -q "21"; then
-  telnet -n $ipvictima 21
-  wget --no-passive-ftp --mirror 'ftp://anonymous:anonymous@$ipvictima' 
-fi
-
 # Verify ports 80.443 is opens http https
 if echo "$ports" | grep -q "80\|443"; then
     echo -e "${YELLOW}[+] Find 80 and 443 ports opnen in IP $ipvictima${NC}"
@@ -84,6 +78,15 @@ else
         echo "[+] LAunching wfuzz in $url"
         wfuzz -c -w /usr/share/seclists/Discovery/Web-Content/combined_words.txt --hc 404,302,400 -u "$url/FUZZ"
     done
+fi
+
+# FTP anonymous Download all to folder
+if grep -q "portid="21"" "ResultNmap$nombre.xml" && grep -q "Anonymous FTP login allowed" "ResultNmap$nombre.xml"; then
+    # foldername
+    foldername="ftp$nombre"
+    mkdir "$foldername"
+    wget --user=anonymous --password=anonymous -r "ftp://$ipvictima" -P "$foldername"
+    echo "FTP content downloaded to $foldername"
 fi
 
 echo "[+] Searching exploitdb..."
