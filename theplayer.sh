@@ -79,15 +79,29 @@ else
         wfuzz -c -w /usr/share/seclists/Discovery/Web-Content/combined_words.txt --hc 404,302,400 -u "$url/FUZZ"
     done
 fi
-## Mejorar no funciona
-## FTP anonymous Download all to folder
-if grep -q "portid="21"" "ResultNmap$nombre.xml" && grep -q "Anonymous FTP login allowed" "ResultNmap$nombre.xml"; then
-    # foldername
-    foldername="ftp$nombre"
-    mkdir "$foldername"
+
+# Buscar la etiqueta <port> con el atributo portid="21" y estado state="open"
+port_info=$(xmllint --xpath '//port[@portid="21" and state/@state="open"]' ResultNmap$nombre.xml)
+
+# Verificar si se encontró la etiqueta <port>
+if [[ -n $port_info ]]; then
+  # Buscar si el inicio de sesión anónimo está permitido en la etiqueta <script> con id="ftp-anon"
+  anon_login=$(echo "$port_info" | grep -o 'Anonymous FTP login allowed')
+
+  if [[ -n $anon_login ]]; then
+    echo "El puerto 21 está abierto y el inicio de sesión anónimo está permitido."
+
+    # Descargar el contenido
     wget --user=anonymous --password=anonymous -r "ftp://$ipvictima" -P "$foldername"
     echo "FTP content downloaded to $foldername"
+  else
+    echo "El puerto 21 está abierto pero el inicio de sesión anónimo no está permitido."
+  fi
+else
+  echo "El puerto 21 no está abierto."
 fi
+
+
 
 echo "[+] Searching exploitdb..."
 searchsploit --nmap ResultNmap$nombre.xml -v --id
