@@ -48,7 +48,7 @@ if echo "$ports" | grep -q "80\|443"; then
     echo -e "${GREEN}nikto -h http://$ipvictima -C all${NC}"
     echo -e "${BLUE}o ${NC}"
     echo -e "${GREEN}nikto -h https://$ipvictima -C all${NC}"
-    echo -e "${GREEN}[+] curl to IP $ipvictima${NC}"
+    echo -e "${LIGHT_CYAN}[+] curl to IP $ipvictima${NC}"
     echo -e "${YELLOW}"
     curl -vvv $ipvictima
     echo -e "${NC}"
@@ -104,6 +104,7 @@ if [[ -n $port_info ]]; then
 
   if [[ -n $anon_login ]]; then
     echo -e "${GREEN}El puerto 21 está abierto y el inicio de sesión anónimo está permitido.${NC}"
+    echo -e "${BLUE}Descargando el contenido...${NC}"
 
     # Descargar el contenido
     wget --user=anonymous --password=anonymous -r "ftp://$ipvictima" -P "$foldername"
