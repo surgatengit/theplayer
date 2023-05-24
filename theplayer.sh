@@ -34,11 +34,13 @@ echo $ports
 if echo "$ports" | grep -q "80\|443"; then
     echo -e "${YELLOW}[+] Find 80 and 443 ports opnen in IP $ipvictima${NC}"
     echo -e "${GREEN}you should run nikto: in other terminal${NC}"
-    echo -e "${GREEN}nikto -h http:$ipvictima -C all${NC}"
+    echo -e "${GREEN}nikto -h http://$ipvictima -C all${NC}"
     echo -e "${BLUE}o ${NC}"
-    echo -e "${GREEN}nikto -h https:$ipvictima -C all${NC}"
-    echo -e "${GREEN}[+] curl to IP $ipvictima$nc"
+    echo -e "${GREEN}nikto -h https://$ipvictima -C all${NC}"
+    echo -e "${GREEN}[+] curl to IP $ipvictima${NC}"
+    echo -e "${YELLOW} "
     curl -vvv $ipvictima
+    echo " ${NC}"
 fi
 # Verify ports 139 o 445 are open smb
 if echo "$ports" | grep -q "139\|445"; then
@@ -53,7 +55,7 @@ if echo "$ports" | grep -q "139\|445"; then
     crackmapexec smb $ipvictima --pass-pol -u "" -p ""
     crackmapexec smb $ipvictima --pass-pol -u guest
 fi
-echo -e "${YELLOW}[+] launch NMAP -sV -sC -Pn nmap${NC}"
+echo -e "${YELLOW}[+] launch NMAP -sV -sC -Pn ${NC}"
 nmap -p$ports -sV -sC -Pn $ipvictima -oA ResultNmap$nombre
 
 # Searching URLs in nmap and add to /host file if no exist
@@ -90,7 +92,7 @@ if [[ -n $port_info ]]; then
   anon_login=$(echo "$port_info" | grep -o 'Anonymous FTP login allowed')
 
   if [[ -n $anon_login ]]; then
-    echo "El puerto 21 está abierto y el inicio de sesión anónimo está permitido."
+    echo -e "${GREEN}El puerto 21 está abierto y el inicio de sesión anónimo está permitido.${NC}"
 
     # Descargar el contenido
     wget --user=anonymous --password=anonymous -r "ftp://$ipvictima" -P "$foldername"
@@ -104,7 +106,7 @@ fi
 echo " "
 echo " "
 
-echo "${YELLOW}[+] Searching exploitdb...${NC}"
+echo -e "${YELLOW}[+] Searching exploitdb...${NC}"
 searchsploit --nmap ResultNmap$nombre.xml --id
 echo " "
 # Buscar alternativas
