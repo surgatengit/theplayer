@@ -1,5 +1,5 @@
 #!/bin/bash
-# Surgat Ramos 0.0.4
+# Surgat Ramos 0.1.1
 
 BLUE='\033[0;34m'
 GREEN='\033[0;32m' 
@@ -94,17 +94,19 @@ if [[ -n $port_info ]]; then
 
     # Descargar el contenido
     wget --user=anonymous --password=anonymous -r "ftp://$ipvictima" -P "$foldername"
-    echo "FTP content downloaded to $foldername"
+    echo -e "${GREEN}FTP content downloaded to $foldername${NC}"
   else
     echo "El puerto 21 está abierto pero el inicio de sesión anónimo no está permitido."
   fi
 else
   echo "El puerto 21 no está abierto."
 fi
+echo " "
+echo " "
 
-
-
-echo "[+] Searching exploitdb..."
-searchsploit --nmap ResultNmap$nombre.xml -v --id
-echo "[+] Search Vulns con nmap..."
-nmap -sV -Pn -n -A --script vuln $ipvictima
+echo "${YELLOW}[+] Searching exploitdb...${NC}"
+searchsploit --nmap ResultNmap$nombre.xml --id
+echo " "
+# Buscar alternativas
+# echo "${YELLOW}[+] Search Vulns with NMAP...${NC}"
+# nmap -sV -Pn -n -A --script vuln $ipvictima
