@@ -18,6 +18,9 @@ fi
 ipvictima=$1
 nombre=$2
 
+figlet The Player
+echo "                           Surgat"
+
 echo -e "${YELLOW}[+] Fast Scan... ${NC}"
 sudo nmap -T4 -F $ipvictima
 
