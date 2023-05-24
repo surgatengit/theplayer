@@ -79,8 +79,8 @@ else
         wfuzz -c -w /usr/share/seclists/Discovery/Web-Content/combined_words.txt --hc 404,302,400 -u "$url/FUZZ"
     done
 fi
-
-# FTP anonymous Download all to folder
+## Mejorar no funciona
+## FTP anonymous Download all to folder
 if grep -q "portid="21"" "ResultNmap$nombre.xml" && grep -q "Anonymous FTP login allowed" "ResultNmap$nombre.xml"; then
     # foldername
     foldername="ftp$nombre"
@@ -92,4 +92,4 @@ fi
 echo "[+] Searching exploitdb..."
 searchsploit --nmap ResultNmap$nombre.xml -v --id
 echo "[+] Search Vulns con nmap..."
-nmap -sV -Pn -A --script vuln $ipvictima
+nmap -sV -Pn -n -A --script vuln $ipvictima
