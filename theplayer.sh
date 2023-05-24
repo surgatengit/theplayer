@@ -93,5 +93,3 @@ echo "[+] Searching exploitdb..."
 searchsploit --nmap ResultNmap$nombre.xml -v --id
 echo "[+] Search Vulns con nmap..."
 nmap -sV -Pn -A --script vuln $ipvictima
-Figlet I recuerda usa Metasploit y anumera y enumera.
-                                     Surgat
