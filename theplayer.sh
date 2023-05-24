@@ -23,6 +23,7 @@ echo "                           Surgat"
 
 echo -e "${YELLOW}[+] Fast Scan... ${NC}"
 sudo nmap -T4 -F $ipvictima
+echo -e "${YELLOW}If you look a 80 o 443 go quick open firefox and burp suite${NC}"
 
 echo -e "${YELLOW}[-] Starts complete NMAP... search all ports open${NC}"
 ports=$(nmap -p- -n -Pn --min-rate=3000 $ipvictima | grep ^[0-9] | cut -d '/' -f 1 | tr '\n' ',' | sed s/,$//)
@@ -31,10 +32,8 @@ echo $ports
 
 # Verify ports 21 is open ftp
 if echo "$ports" | grep -q "21"; then
-  echo -e "${YELLOW}Banner del servidor FTP${NC}"
   telnet -n $ipvictima 21
   wget --no-passive-ftp --mirror 'ftp://anonymous:anonymous@$ipvictima' 
-  
 fi
 
 # Verify ports 80.443 is opens http https
@@ -91,3 +90,5 @@ echo "[+] Searching exploitdb..."
 searchsploit --nmap ResultNmap$nombre.xml -v --id
 echo "[+] Search Vulns con nmap..."
 nmap -sV -Pn -A --script vuln $ipvictima
+Figlet I recuerda usa Metasploit y anumera y enumera.
+                                     Surgat
