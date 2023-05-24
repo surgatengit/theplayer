@@ -31,12 +31,12 @@ echo $ports
 
 # Verify ports 80.443 is opens http https
 if echo "$ports" | grep -q "80\|443"; then
-    echo "${GREEN}[+] Find 80 and 443 ports opnen in IP $ipvictima${NC}"
-    echo -e "${BLUE}you should run nikto: in other terminal${NC}"
-    echo -e "${BLUE}nikto -h http:$ipvictima -C all${NC}"
+    echo -e "${YELLOW}[+] Find 80 and 443 ports opnen in IP $ipvictima${NC}"
+    echo -e "${GREEN}you should run nikto: in other terminal${NC}"
+    echo -e "${GREEN}nikto -h http:$ipvictima -C all${NC}"
     echo -e "${BLUE}o ${NC}"
-    echo -e "${BLUE}nikto -h https:$ipvictima -C all${NC}"
-    echo "[+] curl to IP $ipvictima"
+    echo -e "${GREEN}nikto -h https:$ipvictima -C all${NC}"
+    echo -e "${GREEN}[+] curl to IP $ipvictima$nc"
     curl -vvv $ipvictima
 fi
 # Verify ports 139 o 445 are open smb
@@ -52,18 +52,18 @@ if echo "$ports" | grep -q "139\|445"; then
     crackmapexec smb $ipvictima --pass-pol -u "" -p ""
     crackmapexec smb $ipvictima --pass-pol -u guest
 fi
-echo "[+] launch NMAP -sV -sC -Pn nmap"
+echo -e "${YELLOW}[+] launch NMAP -sV -sC -Pn nmap${NC}"
 nmap -p$ports -sV -sC -Pn $ipvictima -oA ResultNmap$nombre
 
 # Searching URLs in nmap and add to /host file if no exist
-echo "[+] Searching for URLs in Nmap output..."
+echo -E "${YELLOW}[+] Searching for URLs in Nmap output...${NC}"
 urls=$(grep -oP '(http|https)://[\w\-\.]+\.[a-zA-Z]+(:\d+)?(/[\w/_\.]*)?' ResultNmap$nombre.xml)
 for url in $urls; do
     if ! grep -q "$url" /etc/hosts; then
         echo "Adding $url to /etc/hosts"
         echo "$ipvictima $(dig +short "$(echo "$url" | sed 's/http[s]*:\/\///' | cut -d/ -f1)") $nombre.htb # add by theplayer.sh" | sudo tee -a /etc/hosts >/dev/null
     else
-        echo "Skipping $url because it already exists in /etc/hosts"
+        echo -e "${GREEN}Skipping${BLUE} $url ${GREEN}because it already exists in /etc/hosts${NC}"
     fi
 done
 if [ -z "$urls" ]
