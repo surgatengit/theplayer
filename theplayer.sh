@@ -69,7 +69,7 @@ done
 
 echo -e "${YELLOW}[+] Fast Scan... ${NC}"
 sudo nmap -T4 -F $ipvictima
-echo -e "${YELLOW}If there are a 80 o 443 port time to open Firefox and Burpsuite${NC}"
+echo -e "${YELLOW}If there a 80/443 port... Time to open Firefox and Burpsuite${NC}"
 
 echo -e "${YELLOW}[-] Starts complete NMAP... search all ports open${NC}"
 ports=$(nmap -p- -n -Pn --min-rate=3000 $ipvictima | grep ^[0-9] | cut -d '/' -f 1 | tr '\n' ',' | sed s/,$//)
