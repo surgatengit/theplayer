@@ -1,4 +1,8 @@
 # The player
-For learning purposes don't use in real environments even in unreal
+```
+Usage: ./theplayer.sh <IP> <NAME OF MACHINE>
+Example: ./theplayer.sh 10.10.10.129 easymachine
+```
+Enumeration for CTF Boot2Root Machines.
 
-Alekséi Ivánovich in CTF Boot2Root
+For learning purposes don't use in real environments even in unreal. 
