@@ -30,6 +30,18 @@ is_valid_ip() {
     fi
 }
 
+# Función para manejar la señal de interrupción (CTRL+C)
+handle_interrupt() {
+    echo
+    read -p "Are you sure you want to exit? (y/n): " confirm
+    if [ "$confirm" == "y" ]; then
+        exit 0
+    fi
+}
+
+# Asignar la función de manejo de señal de interrupción a la señal SIGINT (CTRL+C)
+trap handle_interrupt SIGINT
+
 figlet The Player
 echo "                           Surgat"
 
