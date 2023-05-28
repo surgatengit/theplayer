@@ -1,5 +1,5 @@
 #!/bin/bash
-# Surgat Ramos 0.1.1
+# Surgat Ramos 0.2.0
 
 BLUE='\033[0;34m'
 GREEN='\033[0;32m' 
@@ -17,20 +17,43 @@ LIGHT_PURPLE='\033[1;35m'
 WHITE='\033[1;37m'
 NC='\033[0m' # No color
 
-# -e in echo for ANSI escapes
-
-if [ -z "$1" ]
-then
-        echo "Usage: ./theplayer.sh <IP> <NAME OF MACHINE>"
-        echo "Example: ./theplayer.sh 10.10.10.129 easymachine"
-        exit 1
-fi
-
 ipvictima=$1
 nombre=$2
 
+# Función para validar si una cadena es una dirección IP
+is_valid_ip() {
+    local ip=$1
+    if [[ $ip =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
 figlet The Player
 echo "                           Surgat"
+
+if [ -z "$ipvictima" ] || [ -z "$nombre" ]; then
+    echo "Usage: ./theplayer.sh <IP> <NAME OF MACHINE>"
+    echo "Example: ./theplayer.sh 10.10.10.129 easymachine"
+    exit 1
+fi
+
+if ! is_valid_ip $ipvictima; then
+    echo "Invalid IP address. The first argument should be a valid IP address."
+    exit 1
+fi
+
+if ! [[ $nombre =~ ^[[:alpha:]]+$ ]]; then
+    echo "Invalid name. The second argument should be a word."
+    exit 1
+fi
+
+echo -e "${YELLOW}[+] Pinging victim IP... ${NC}"
+while ! is_valid_ip $ipvictima || ! ping -c 1 $ipvictima >/dev/null; do
+    echo "Ping unsuccessful. Retrying in 1 second..."
+    sleep 1
+done
 
 echo -e "${YELLOW}[+] Fast Scan... ${NC}"
 sudo nmap -T4 -F $ipvictima
@@ -125,5 +148,5 @@ echo -e "${YELLOW}[+] Searching exploitdb...${NC}"
 searchsploit --nmap ResultNmap$nombre.xml --id
 echo " "
 # Buscar alternativas
-# echo "${YELLOW}[+] Search Vulns with NMAP...${NC}"
-# nmap -sV -Pn -n -A --script vuln $ipvictima
+echo "${YELLOW}[+] Search Vulns with NMAP...${NC}"
+nmap -sV -Pn -n -A --script vuln $ipvictima
