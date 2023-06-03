@@ -69,7 +69,7 @@ done
 
 echo -e "${YELLOW}[+] Fast Scan... ${NC}"
 sudo nmap -T4 -F $ipvictima
-echo -e "${YELLOW}                80/443 port... Time to Firefox and Burpsuite${NC}"
+echo -e "${YELLOW}                80/443 port... Time to Firefox and Burpsuite Manually${NC}"
 
 echo -e "${YELLOW}[-] Starts complete NMAP... search all ports open${NC}"
 ports=$(nmap -p- -n -Pn --min-rate=3000 $ipvictima | grep ^[0-9] | cut -d '/' -f 1 | tr '\n' ',' | sed s/,$//)
@@ -110,7 +110,7 @@ nmap -p$ports -sV -sC -Pn $ipvictima -oX ResultNmap$nombre
 
 # Searching hostnames in Nmap output
 echo -e "${YELLOW}[+] Searching for hostnames in Nmap output...${NC}"
-hostnames=$(xmllint --xpath '//host/hostnames/hostname/@name' ResultNmap$nombre.xml | sed -n 's/ name="\([^"]*\)"/\1/p')
+hostnames=$(xmllint --xpath '//host/hostnames/hostname/@name' ResultNmap$nombre | sed -n 's/ name="\([^"]*\)"/\1/p')
 
 for hostname in $hostnames; do
     if ! grep -q "$hostname" /etc/hosts; then
@@ -124,10 +124,14 @@ done
 if [ -z "$hostnames" ]; then
     echo -e "${BLUE}No hostnames found in the results of Nmap.${NC}"
 else
-    echo "[+] Hostnames found:"
+    echo -e "${GREEN}[+] Hostnames found:${NC}"
     echo "$hostnames"
 fi
     for host in $hostnames; do
+        echo -e "${LIGHT_CYAN}[+]          Curl to $hostname${NC}"
+        echo -e "${YELLOW}"
+        curl -vvv $ipvictima
+        echo -e "${NC}" 
         echo -e "${ORANGE}[+] Directory and archive fuzz $hostname ${NC}"
         wfuzz -c -w /usr/share/seclists/Discovery/Web-Content/combined_words.txt --hc 404,302,400 -u "$hostname/FUZZ"
     done
