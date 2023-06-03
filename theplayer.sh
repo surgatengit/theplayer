@@ -110,7 +110,7 @@ nmap -p$ports -sV -sC -Pn $ipvictima -oX ResultNmap$nombre
 
 # Searching URLs in nmap and add to /etc/hosts if not already present
 echo -e "${YELLOW}[+] Searching for URLs in Nmap output...${NC}"
-urls=$(xmllint --xpath '//host/ports/port/script[@id="http-title" and @output!=""]/@output' ResultNmap$nombre.xml | sed -n 's/ output="\([^"]*\)"/\1/p')
+urls=$(xmllint --xpath '//host/ports/port/script[@id="http-title" and @output!=""]/@output' ResultNmap$nombre | sed -n 's/ output="\([^"]*\)"/\1/p')
 
 for url in $urls; do
     if ! grep -q "$url" /etc/hosts; then
@@ -134,7 +134,7 @@ fi
 
 foldername="ftp$nombre"
 # Buscar la etiqueta <port> con el atributo portid="21" y estado state="open"
-port_info=$(xmllint --xpath '//port[@portid="21" and state/@state="open"]' ResultNmap$nombre.xml)
+port_info=$(xmllint --xpath '//port[@portid="21" and state/@state="open"]' ResultNmap$nombre)
 
 # Verificar si se encontró la etiqueta <port>
 if [[ -n $port_info ]]; then
@@ -157,9 +157,9 @@ fi
 echo " "
 echo " "
 
-echo -e "${YELLOW}[+] Searching exploitdb...${NC}"
-searchsploit --nmap ResultNmap$nombre.xml --id
-echo " "
+# echo -e "${YELLOW}[+] Searching exploitdb...${NC}"
+# searchsploit --nmap ResultNmap$nombre --id
+# echo " "
 # Buscar alternativas
 # echo -e "${YELLOW}[+] Search Vulns with NMAP...${NC}"
 # nmap -sV -Pn -n -A --script vuln $ipvictima
