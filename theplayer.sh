@@ -108,27 +108,28 @@ fi
 echo -e "${LIGHT_CYAN}[+] launch NMAP -sV -sC -Pn ${NC}"
 nmap -p$ports -sV -sC -Pn $ipvictima -oX ResultNmap$nombre
 
-# Searching URLs in nmap and add to /etc/hosts if not already present
-echo -e "${YELLOW}[+] Searching for URLs in Nmap output...${NC}"
-urls=$(xmllint --xpath '//host/ports/port/script[@id="http-title" and @output!=""]/@output' ResultNmap$nombre | sed -n 's/ output="\([^"]*\)"/\1/p')
+# Searching hostnames in Nmap output
+echo -e "${YELLOW}[+] Searching for hostnames in Nmap output...${NC}"
+hostnames=$(xmllint --xpath '//host/hostnames/hostname/@name' ResultNmap$nombre.xml | sed -n 's/ name="\([^"]*\)"/\1/p')
 
-for url in $urls; do
-    if ! grep -q "$url" /etc/hosts; then
-        echo "Adding $url to /etc/hosts"
-        echo "$ipvictima $(dig +short "$(echo "$url" | sed 's/http[s]*:\/\///' | cut -d/ -f1)") $nombre.htb # add by theplayer.sh" | sudo tee -a /etc/hosts >/dev/null
+for hostname in $hostnames; do
+    if ! grep -q "$hostname" /etc/hosts; then
+        echo "Adding $hostname to /etc/hosts"
+        echo "$ipvictima $(dig +short "$hostname") $nombre.htb # added by theplayer.sh" | sudo tee -a /etc/hosts >/dev/null
     else
-        echo -e "${GREEN}Skipping${BLUE} $url ${GREEN}because it already exists in /etc/hosts${NC}"
+        echo -e "${GREEN}Skipping${BLUE} $hostname ${GREEN}because it already exists in /etc/hosts${NC}"
     fi
 done
 
-if [ -z "$urls" ]; then
-    echo -e "${BLUE}No URLs found in the results of nmap.${NC}"
+if [ -z "$hostnames" ]; then
+    echo -e "${BLUE}No hostnames found in the results of Nmap.${NC}"
 else
-    echo "${GREEN}[+] URLs found: ${NC}"
-    echo "$urls"
-    for url in $urls; do
-        echo "${ORANGE}[+] Directory and archive fuzz $url ${NC}"
-        wfuzz -c -w /usr/share/seclists/Discovery/Web-Content/combined_words.txt --hc 404,302,400 -u "$url/FUZZ"
+    echo "[+] Hostnames found:"
+    echo "$hostnames"
+fi
+    for host in $hostnames; do
+        echo -e "${ORANGE}[+] Directory and archive fuzz $hostname ${NC}"
+        wfuzz -c -w /usr/share/seclists/Discovery/Web-Content/combined_words.txt --hc 404,302,400 -u "$hostname/FUZZ"
     done
 fi
 
