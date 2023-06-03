@@ -114,20 +114,24 @@ hostnames=$(xmllint --xpath '//host/hostnames/hostname/@name' ResultNmap$nombre 
 
 for hostname in $hostnames; do
     if ! grep -q "$hostname" /etc/hosts; then
-        echo "Adding $hostname to /etc/hosts"
+        echo ""
+        echo -e "${GREEN}       Adding ${YELLOW} $hostname ${GREEN}to /etc/hosts ${NC}"
         echo "$ipvictima $(dig +short "$hostname") $nombre.htb # added by theplayer.sh" | sudo tee -a /etc/hosts >/dev/null
     else
-        echo -e "${GREEN}Skipping${BLUE} $hostname ${GREEN}because it already exists in /etc/hosts${NC}"
+        echo ""
+        echo -e "${GREEN}        Skipping${YELLOW} $hostname ${GREEN}because it already exists in /etc/hosts${NC}"
     fi
 done
 
 if [ -z "$hostnames" ]; then
-    echo -e "${BLUE}No hostnames found in the results of Nmap.${NC}"
+    echo -e "${LIGHT_CYAN}No hostnames found in the results of Nmap.${NC}"
 else
-    echo -e "${GREEN}[+] Hostnames found:${NC}"
+    echo ""
+    echo -e "${YELLOW}[+]    Hostnames found:${NC}"
     echo "$hostnames"
 fi
     for host in $hostnames; do
+        echo ""
         echo -e "${LIGHT_CYAN}[+]          Curl to $hostname${NC}"
         echo -e "${YELLOW}"
         curl -vvv $ipvictima
