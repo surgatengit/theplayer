@@ -69,7 +69,7 @@ done
 
 echo -e "${YELLOW}[+] Fast Scan... ${NC}"
 sudo nmap -T4 -F $ipvictima
-echo -e "${YELLOW}If there a 80/443 port... Time to open Firefox and Burpsuite${NC}"
+echo -e "${YELLOW}                80/443 port... Time to Firefox and Burpsuite${NC}"
 
 echo -e "${YELLOW}[-] Starts complete NMAP... search all ports open${NC}"
 ports=$(nmap -p- -n -Pn --min-rate=3000 $ipvictima | grep ^[0-9] | cut -d '/' -f 1 | tr '\n' ',' | sed s/,$//)
@@ -85,7 +85,8 @@ if echo "$ports" | grep -q "80\|443"; then
     echo -e "${GREEN}wfuzz -c -w /usr/share/seclists/Discovery/Web-Content/combined_words.txt --hc 404,302,400 -u "$ipvictima/FUZZ"${NC}"
     echo -e "${GREEN}nikto -h https://$ipvictima -C all${NC}"
     echo ""
-    echo -e "${LIGHT_CYAN}[+] curl to IP $ipvictima${NC}"
+    echo "-----------------------"
+    echo -e "${LIGHT_CYAN}[+]          Curl to IP $ipvictima${NC}"
     echo -e "${YELLOW}"
     curl -vvv $ipvictima
     echo -e "${NC}"
