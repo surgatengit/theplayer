@@ -108,9 +108,10 @@ fi
 echo -e "${LIGHT_CYAN}[+] launch NMAP -sV -sC -Pn ${NC}"
 nmap -p$ports -sV -sC -Pn $ipvictima -oX ResultNmap$nombre
 
-# Searching URLs in nmap and add to /host file if no exist
+# Searching URLs in nmap and add to /etc/hosts if not already present
 echo -e "${YELLOW}[+] Searching for URLs in Nmap output...${NC}"
-urls=$(grep -oP '(http|https)://[\w\-\.]+\.[a-zA-Z]+(:\d+)?(/[\w/_\.]*)?' ResultNmap$nombre.xml)
+urls=$(xmllint --xpath '//host/ports/port/script[@id="http-title" and @output!=""]/@output' ResultNmap$nombre.xml | sed -n 's/ output="\([^"]*\)"/\1/p')
+
 for url in $urls; do
     if ! grep -q "$url" /etc/hosts; then
         echo "Adding $url to /etc/hosts"
@@ -119,19 +120,18 @@ for url in $urls; do
         echo -e "${GREEN}Skipping${BLUE} $url ${GREEN}because it already exists in /etc/hosts${NC}"
     fi
 done
-if [ -z "$urls" ]
-then
-    echo -e "${BLUE}No URLs found in results of nmap.${NC}"
+
+if [ -z "$urls" ]; then
+    echo -e "${BLUE}No URLs found in the results of nmap.${NC}"
 else
-    echo "[+] URLs founds: "
+    echo "${GREEN}[+] URLs found: ${NC}"
     echo "$urls"
-    for url in $urls
-    do
-        echo "[+] Directory and archive fuzz $url"
+    for url in $urls; do
+        echo "${ORANGE}[+] Directory and archive fuzz $url ${NC}"
         wfuzz -c -w /usr/share/seclists/Discovery/Web-Content/combined_words.txt --hc 404,302,400 -u "$url/FUZZ"
     done
 fi
-# foldername
+
 foldername="ftp$nombre"
 # Buscar la etiqueta <port> con el atributo portid="21" y estado state="open"
 port_info=$(xmllint --xpath '//port[@portid="21" and state/@state="open"]' ResultNmap$nombre.xml)
