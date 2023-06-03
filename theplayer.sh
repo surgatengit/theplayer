@@ -105,7 +105,7 @@ if echo "$ports" | grep -q "139\|445"; then
     crackmapexec smb $ipvictima --pass-pol -u guest
 fi
 echo -e "${LIGHT_CYAN}[+] launch NMAP -sV -sC -Pn ${NC}"
-nmap -p$ports -sV -sC -Pn $ipvictima -oA ResultNmap$nombre
+nmap -p$ports -sV -sC -Pn $ipvictima -oX ResultNmap$nombre
 
 # Searching URLs in nmap and add to /host file if no exist
 echo -e "${YELLOW}[+] Searching for URLs in Nmap output...${NC}"
