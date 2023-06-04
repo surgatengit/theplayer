@@ -138,9 +138,9 @@ fi
         echo ""
         wfuzz -c -w /usr/share/seclists/Discovery/Web-Content/combined_words.txt --hc 404,302,400 -u "$hostname/FUZZ"
         echo ""
-        echo -e "${LIGHT_CYAN}[+]       Subdomain Virtualhosts fuzz (wfuzz combined_subdomains) $hostname ${NC}"
-        echo ""
-        wfuzz -c -w /usr/share/wordlists/seclists/Discovery/DNS/combined_subdomains.txt --hc 400,404,403 -H "Host: FUZZ.$hostname" -u http://$hostname -t 100
+        echo -e "${LIGHT_CYAN}[+]       Subdomain Virtualhosts fuzz (ffuf combined_subdomains) $hostname ${NC}"
+        echo "" # ffuf with autocalibrate
+        ffuf -u http://$hostname -H "Host:FUZZ.$hostname" -w /usr/share/wordlists/seclists/Discovery/DNS/combined_subdomains.txt -mc all -c -v -ac true
     done
 
 foldername="ftp$nombre"
