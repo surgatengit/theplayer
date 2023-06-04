@@ -61,19 +61,19 @@ if ! [[ $nombre =~ ^[[:alpha:]]+$ ]]; then
     exit 1
 fi
 
-echo -e "${YELLOW}[+] Pinging victim IP... ${NC}"
+echo -e "${LIGHT_BLUE}[+]       Pinging victim IP... ${NC}"
 while ! is_valid_ip $ipvictima || ! ping -c 1 $ipvictima >/dev/null; do
     echo "Ping unsuccessful. Retrying in 1 second..."
     sleep 1
 done
 
-echo -e "${YELLOW}[+] Fast Scan... ${NC}"
+echo -e "${LIGHT_BLUE}[+]       Fast Scan... ${NC}"
 sudo nmap -T4 -F $ipvictima
 echo -e "${YELLOW}                80/443 port... Time to Firefox and Burpsuite Manually${NC}"
 
-echo -e "${YELLOW}[-] Starts complete NMAP... search all ports open${NC}"
+echo -e "${LIGHT_BLUE}[-]       Starts complete NMAP... search all open ports${NC}"
 ports=$(nmap -p- -n -Pn --min-rate=3000 $ipvictima | grep ^[0-9] | cut -d '/' -f 1 | tr '\n' ',' | sed s/,$//)
-echo -e "${GREEN}[+] Complete Scan... analizing open ports${NC}"
+echo -e "${LIGHT_BLUE}[+]       Complete NMAP... analizing open ports${NC}"
 echo $ports
 
 # Verify ports 80.443 is opens http https
@@ -82,7 +82,6 @@ if echo "$ports" | grep -q "80\|443"; then
     echo -e "${GREEN}You should run nikto in other terminal${NC}"
     echo -e "${GREEN}nikto -h http://$ipvictima -C all${NC}"
     echo ""
-    echo -e "${GREEN}wfuzz -c -w /usr/share/seclists/Discovery/Web-Content/combined_words.txt --hc 404,302,400 -u "$ipvictima/FUZZ"${NC}"
     echo -e "${GREEN}nikto -h https://$ipvictima -C all${NC}"
     echo ""
     echo "-----------------------"
@@ -133,14 +132,12 @@ fi
     for host in $hostnames; do
         echo ""
         echo -e "${LIGHT_CYAN}[+]       Curl to $hostname${NC}"
-        echo -e "${YELLOW}"
         curl -vvv $hostname
-        echo -e "${NC}" 
         echo -e "${LIGHT_CYAN}[+]       Directory and archive fuzz (wfuzz combined_words) $hostname${NC}"
         wfuzz -c -w /usr/share/seclists/Discovery/Web-Content/combined_words.txt --hc 404,302,400 -u "$hostname/FUZZ"
         echo ""
-        echo -e "${LIGHT_CYAN}[+]       Subdomain virtualHosts fuzz (wfuzz combined_subdomains) $hostname ${NC}"
-        wfuzz -c -w /usr/share/wordlists/seclists/Discovery/DNS/combined_subdomains.txt --hc 400,404,403 -H "Host: FUZZ.$hostname" -u http://hostname.htb -t 100
+        echo -e "${LIGHT_CYAN}[+]       Subdomain VirtualHosts fuzz (wfuzz combined_subdomains) $hostname ${NC}"
+        wfuzz -c -w /usr/share/wordlists/seclists/Discovery/DNS/combined_subdomains.txt --hc 400,404,403 -H "Host: FUZZ.$hostname" -u http://$hostname -t 100
     done
 
 foldername="ftp$nombre"
@@ -154,16 +151,16 @@ if [[ -n $port_info ]]; then
 
   if [[ -n $anon_login ]]; then
     echo -e "${GREEN}El puerto 21 está abierto y el inicio de sesión anónimo está permitido.${NC}"
-    echo -e "${BLUE}Descargando el contenido...${NC}"
+    echo -e "${LIGHT_BLUE}      Descargando el contenido del FTP...${NC}"
 
     # Descargar el contenido
     wget --user=anonymous --password=anonymous -r "ftp://$ipvictima" -P "$foldername"
     echo -e "${GREEN}FTP content downloaded to $foldername${NC}"
   else
-    echo "El puerto 21 está abierto pero el inicio de sesión anónimo no está permitido."
+    echo -e "${BLUE}[-] El puerto 21 está abierto pero el inicio de sesión anónimo no está permitido.${NC}"
   fi
 else
-  echo "El puerto 21 no está abierto."
+  echo -e "${BLUE}[-] El puerto 21 no está abierto.${NC}"
 fi
 echo " "
 echo " "
