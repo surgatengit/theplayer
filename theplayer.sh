@@ -105,7 +105,7 @@ if echo "$ports" | grep -q "139\|445"; then
     crackmapexec smb $ipvictima --pass-pol -u "" -p ""
     crackmapexec smb $ipvictima --pass-pol -u guest
 fi
-echo -e "${LIGHT_CYAN}[+] launch NMAP -sV -sC -Pn ${NC}"
+echo -e "${LIGHT_CYAN}[+]       launch NMAP -sV -sC -Pn ${NC}"
 nmap -p$ports -sV -sC -Pn $ipvictima -oX ResultNmap$nombre
 
 # Searching hostnames in Nmap output
@@ -127,19 +127,21 @@ if [ -z "$hostnames" ]; then
     echo -e "${LIGHT_CYAN}No hostnames found in the results of Nmap.${NC}"
 else
     echo ""
-    echo -e "${YELLOW}[+]    Hostnames found:${NC}"
+    echo -e "${YELLOW}[+]   Hostnames found:${NC}"
     echo "$hostnames"
 fi
     for host in $hostnames; do
         echo ""
-        echo -e "${LIGHT_CYAN}[+]          Curl to $hostname${NC}"
+        echo -e "${LIGHT_CYAN}[+]       Curl to $hostname${NC}"
         echo -e "${YELLOW}"
-        curl -vvv $ipvictima
+        curl -vvv $hostname
         echo -e "${NC}" 
-        echo -e "${ORANGE}[+] Directory and archive fuzz $hostname ${NC}"
+        echo -e "${LIGHT_CYAN}[+]       Directory and archive fuzz (wfuzz combined_words) $hostname${NC}"
         wfuzz -c -w /usr/share/seclists/Discovery/Web-Content/combined_words.txt --hc 404,302,400 -u "$hostname/FUZZ"
+        echo ""
+        echo -e "${LIGHT_CYAN}[+]       Subdomain virtualHosts fuzz (wfuzz combined_subdomains) $hostname ${NC}"
+        wfuzz -c -w /usr/share/wordlists/seclists/Discovery/DNS/combined_subdomains.txt --hc 400,404,403 -H "Host: FUZZ.$hostname" -u http://hostname.htb -t 100
     done
-fi
 
 foldername="ftp$nombre"
 # Buscar la etiqueta <port> con el atributo portid="21" y estado state="open"
