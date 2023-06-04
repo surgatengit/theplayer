@@ -140,7 +140,7 @@ fi
         echo ""
         echo -e "${LIGHT_CYAN}[+]       Subdomain Virtualhosts fuzz (ffuf combined_subdomains) $hostname ${NC}"
         echo "" # ffuf with autocalibrate
-        ffuf -u http://$hostname -H "Host:FUZZ.$hostname" -w /usr/share/wordlists/seclists/Discovery/DNS/combined_subdomains.txt -mc all -c -v -ac true
+        ffuf -u http://$hostname -H "Host:FUZZ.$hostname" -w /usr/share/wordlists/seclists/Discovery/DNS/combined_subdomains.txt -mc all -c -v -ac true -o fuff$hostname
     done
 
 foldername="ftp$nombre"
