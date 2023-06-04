@@ -1,5 +1,5 @@
 #!/bin/bash
-# Surgat Ramos 0.2.0
+# Surgat Ramos 0.2.5
 
 BLUE='\033[0;34m'
 GREEN='\033[0;32m' 
@@ -20,7 +20,7 @@ NC='\033[0m' # No color
 ipvictima=$1
 nombre=$2
 
-# Función para validar si una cadena es una dirección IP
+# Function to validate if a string is an IP address
 is_valid_ip() {
     local ip=$1
     if [[ $ip =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
@@ -30,7 +30,7 @@ is_valid_ip() {
     fi
 }
 
-# Función para manejar la señal de interrupción (CTRL+C)
+# Function to handle the interrupt signal (CTRL+C)
 handle_interrupt() {
     echo
     read -p "Are you sure you want to exit? (y/n): " confirm
@@ -39,7 +39,7 @@ handle_interrupt() {
     fi
 }
 
-# Asignar la función de manejo de señal de interrupción a la señal SIGINT (CTRL+C)
+# Assign the interrupt signal handling function to the SIGINT signal (CTRL+C)
 trap handle_interrupt SIGINT
 
 figlet The Player
@@ -90,7 +90,7 @@ if echo "$ports" | grep -q "80\|443"; then
     curl -vvv $ipvictima
     echo -e "${NC}"
 fi
-# Mejorar, probar leer de xml cme o etc...
+
 # Verify ports 139 o 445 are open smb
 if echo "$ports" | grep -q "139\|445"; then
     echo -e "${GREEN}[+] Find 139 o 445 open, en IP $ipvictima${NC}"
@@ -133,34 +133,37 @@ fi
         echo ""
         echo -e "${LIGHT_CYAN}[+]       Curl to $hostname${NC}"
         curl -vvv $hostname
+        echo ""
         echo -e "${LIGHT_CYAN}[+]       Directory and archive fuzz (wfuzz combined_words) $hostname${NC}"
+        echo ""
         wfuzz -c -w /usr/share/seclists/Discovery/Web-Content/combined_words.txt --hc 404,302,400 -u "$hostname/FUZZ"
         echo ""
-        echo -e "${LIGHT_CYAN}[+]       Subdomain VirtualHosts fuzz (wfuzz combined_subdomains) $hostname ${NC}"
+        echo -e "${LIGHT_CYAN}[+]       Subdomain Virtualhosts fuzz (wfuzz combined_subdomains) $hostname ${NC}"
+        echo ""
         wfuzz -c -w /usr/share/wordlists/seclists/Discovery/DNS/combined_subdomains.txt --hc 400,404,403 -H "Host: FUZZ.$hostname" -u http://$hostname -t 100
     done
 
 foldername="ftp$nombre"
-# Buscar la etiqueta <port> con el atributo portid="21" y estado state="open"
+# Find the <port> tag with the attribute portid="21" and state="open"
 port_info=$(xmllint --xpath '//port[@portid="21" and state/@state="open"]' ResultNmap$nombre)
 
-# Verificar si se encontró la etiqueta <port>
+# Check if the <port> tag was found.
 if [[ -n $port_info ]]; then
-  # Buscar si el inicio de sesión anónimo está permitido en la etiqueta <script> con id="ftp-anon"
+  # Search if anonymous login is allowed in the <script> tag with id="ftp-anon"
   anon_login=$(echo "$port_info" | grep -o 'Anonymous FTP login allowed')
 
   if [[ -n $anon_login ]]; then
-    echo -e "${GREEN}El puerto 21 está abierto y el inicio de sesión anónimo está permitido.${NC}"
-    echo -e "${LIGHT_BLUE}      Descargando el contenido del FTP...${NC}"
+    echo -e "${GREEN}Port 21 is open and anonymous login is allowed.${NC}"
+    echo -e "${LIGHT_BLUE}      Downloading FTP content...${NC}"
 
-    # Descargar el contenido
+    # FTP content download
     wget --user=anonymous --password=anonymous -r "ftp://$ipvictima" -P "$foldername"
     echo -e "${GREEN}FTP content downloaded to $foldername${NC}"
   else
-    echo -e "${BLUE}[-] El puerto 21 está abierto pero el inicio de sesión anónimo no está permitido.${NC}"
+    echo -e "${BLUE}[-] Port 21 is open but anonymous login is not allowed.${NC}"
   fi
 else
-  echo -e "${BLUE}[-] El puerto 21 no está abierto.${NC}"
+  echo -e "${BLUE}[-] Port 21 is not open.${NC}"
 fi
 echo " "
 echo " "
