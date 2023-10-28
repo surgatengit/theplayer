@@ -67,6 +67,8 @@ while ! is_valid_ip $ipvictima || ! ping -c 1 $ipvictima >/dev/null; do
     sleep 1
 done
 
+## Fast Scan and scan al open ports
+
 echo -e "${LIGHT_BLUE}[+]       Fast Scan... ${NC}"
 sudo nmap -T4 -F $ipvictima
 echo -e "${YELLOW}                80/443 port... Time to Firefox and Burpsuite Manually${NC}"
@@ -76,7 +78,8 @@ ports=$(nmap -p- -n -Pn --min-rate=3000 $ipvictima | grep ^[0-9] | cut -d '/' -f
 echo -e "${LIGHT_BLUE}[+]       Complete NMAP... analizing open ports${NC}"
 echo $ports
 
-# Verify ports 80.443 is opens http https
+    # Verify ports 80.443 is opens http https
+    
 if echo "$ports" | grep -q "80\|443"; then
     echo -e "${YELLOW}[+] Find 80 and 443 ports open in IP $ipvictima${NC}"
     echo -e "${GREEN}You should run nikto in other terminal${NC}"
@@ -91,7 +94,8 @@ if echo "$ports" | grep -q "80\|443"; then
     echo -e "${NC}"
 fi
 
-# Verify ports 139 o 445 are open smb
+    # Verify ports 139 o 445 are open smb
+    
 if echo "$ports" | grep -q "139\|445"; then
     echo -e "${GREEN}[+] Find 139 o 445 open, en IP $ipvictima${NC}"
     echo -e "${YELLOW}[-] Runing enumeration SMB withowt Credentials${NC}"
@@ -106,6 +110,8 @@ if echo "$ports" | grep -q "139\|445"; then
 fi
 echo -e "${LIGHT_CYAN}[+]       launch NMAP -sV -sC -Pn ${NC}"
 nmap -p$ports -sV -sC -Pn $ipvictima -oX ResultNmap$nombre
+
+## Host name to /etc/hosts
 
 # Searching hostnames in Nmap output
 echo -e "${YELLOW}[+] Searching for hostnames in Nmap output...${NC}"
@@ -129,6 +135,9 @@ else
     echo -e "${YELLOW}[+]   Hostnames found:${NC}"
     echo "$hostnames"
 fi
+
+## Curl on screen, ffuf subdomanin and wfuzz virtualhosts
+
     for host in $hostnames; do
         echo ""
         echo -e "${LIGHT_CYAN}[+]       Curl to $hostname${NC}"
