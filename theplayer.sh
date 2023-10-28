@@ -116,8 +116,9 @@ nmap -p$ports -sV -sC -Pn $ipvictima -oX ResultNmap$nombre
 # Searching hostnames in Nmap output
 echo -e "${YELLOW}[+] Searching for hostnames in Nmap output...${NC}"
 hostnames=$(xmllint --xpath '//host/hostnames/hostname/@name' ResultNmap$nombre | sed -n 's/ name="\([^"]*\)"/\1/p')
+urls=$(xmllint --xpath '//host/ports/port/script[@id="http-title" and @output!=""]/@output' ResultNmap$nombre | sed -n -E 's/.*(https?|http):\/\/([^/]+).*/\2/p')
 
-for hostname in $hostnames; do
+for hostname in $urls; do
     if ! grep -q "$hostname" /etc/hosts; then
         echo ""
         echo -e "${GREEN}       Adding ${YELLOW} $hostname ${GREEN}to /etc/hosts ${NC}"
@@ -128,17 +129,17 @@ for hostname in $hostnames; do
     fi
 done
 
-if [ -z "$hostnames" ]; then
+if [ -z "$urls" ]; then
     echo -e "${LIGHT_CYAN}No hostnames found in the results of Nmap.${NC}"
 else
     echo ""
     echo -e "${YELLOW}[+]   Hostnames found:${NC}"
-    echo "$hostnames"
+    echo "$urls"
 fi
 
 ## Curl on screen, ffuf subdomanin and wfuzz virtualhosts
 
-    for host in $hostnames; do
+    for host in $urls; do
         echo ""
         echo -e "${LIGHT_CYAN}[+]       Curl to $hostname${NC}"
         curl -vvv $hostname
