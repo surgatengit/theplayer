@@ -115,14 +115,13 @@ nmap -p$ports -sV -sC -Pn $ipvictima -oX ResultNmap$nombre
 
 # Searching hostnames in Nmap output
 echo -e "${YELLOW}[+] Searching for hostnames in Nmap output...${NC}"
-hostnames=$(xmllint --xpath '//host/hostnames/hostname/@name' ResultNmap$nombre | sed -n 's/ name="\([^"]*\)"/\1/p')
 urls=$(xmllint --xpath '//host/ports/port/script[@id="http-title" and @output!=""]/@output' ResultNmap$nombre | sed -n -E 's/.*(https?|http):\/\/([^/]+).*/\2/p')
 
 for hostname in $urls; do
     if ! grep -q "$hostname" /etc/hosts; then
         echo ""
         echo -e "${GREEN}       Adding ${YELLOW} $hostname ${GREEN}to /etc/hosts ${NC}"
-        echo "$ipvictima $(dig +short "$hostname") $nombre.htb # added by theplayer.sh" | sudo tee -a /etc/hosts >/dev/null
+        echo "$ipvictima $(dig +short "$hostname") $hostname # added by theplayer.sh" | sudo tee -a /etc/hosts >/dev/null
     else
         echo ""
         echo -e "${GREEN}        Skipping${YELLOW} $hostname ${GREEN}because it already exists in /etc/hosts${NC}"
