@@ -132,7 +132,6 @@ wait
 echo -e "${YELLOW}[+] Searching for hostnames in Nmap output...${NC}"
 echo $ports
 # Searching hostnames in Nmap output
-if echo "$ports" | grep -q "\<80\>"; then
 urls=$(xmllint --xpath '//host/ports/port/script[@id="http-title" and @output!=""]/@output' ResultNmap$nombre | sed -n -E 's/.*(https?|http):\/\/([^/]+).*/\2/p')
 
 for hostname in $urls; do
