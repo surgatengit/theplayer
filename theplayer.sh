@@ -177,6 +177,21 @@ fi
 echo " "
 echo " "
 
+## DNS server
+# Find the <port> tag with the attribute portid="21" and state="open"
+port_info53=$(xmllint --xpath '//port[@portid="53" and state/@state="open"]' ResultNmap$nombre)
+# Check if the <port> tag was found.
+echo -e "${BLUE}[-] Port 53 DNS is open, try to grab the banner and run metaexploy modules dns_amp and enum_dns${NC}"
+if [[ -n $port_info53 ]]; then
+  # launch domain dns search and dig banner grab
+   dig version.bind CHAOS TXT @$1
+   msfconsole -q -x "use auxiliary/scanner/dns/dns_amp; set RHOSTS $1; set RPORT 53; run; exit" && msfconsole -q -x "use auxiliary/gather/enum_dns; set RHOSTS $1; set RPORT 53; run; exit"
+else
+  echo -e "${BLUE}[-] port 53 DNS is not open.${NC}"
+fi
+echo " "
+echo " "
+
 # echo -e "${YELLOW}[+] Searching exploitdb...${NC}"
 # searchsploit --nmap ResultNmap$nombre --id
 # echo " "
