@@ -1,4 +1,6 @@
 # The player
+
+Test in kali linux
 ```
 Usage: ./theplayer.sh <IP> <NAME OF MACHINE>
 Example: ./theplayer.sh 10.10.10.129 easymachine
