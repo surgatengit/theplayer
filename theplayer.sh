@@ -113,8 +113,11 @@ if echo "$ports" | grep -q "139\|445"; then
     echo -e "${GREEN}[+] Find 139 o 445 open, en IP $ipvictima${NC}"
     echo -e "${YELLOW}[-] Runing enumeration SMB withowt Credentials${NC}"
     nbtscan $ipvictima
+    echo -e "${YELLOW}[-] Runing enumeration SMB withowt Credentials 1/3 ${NC}"
     smbmap -H $ipvictima
+    echo -e "${YELLOW}[-] Runing enumeration SMB withowt Credentials 2/3 ${NC}"
     smbmap -H $ipvictima -u null -p null
+    echo -e "${YELLOW}[-] Runing enumeration SMB withowt Credentials 3/3 ${NC}"
     smbmap -H $ipvictima -u guest
     smbclient -N -L //$ipvictima
     crackmapexec smb $ipvictima
@@ -122,13 +125,14 @@ if echo "$ports" | grep -q "139\|445"; then
     crackmapexec smb $ipvictima --pass-pol -u guest
 fi
 echo -e "${GREEN}[+] Waiting to finish complete Nmap in background...${NC}"
+
 wait
 
 ## Host name to /etc/hosts
 echo -e "${YELLOW}[+] Searching for hostnames in Nmap output...${NC}"
 
 # Searching hostnames in Nmap output
-if echo "$ports" | grep -q "80"; then
+if echo "$ports" | grep -q "\<80\>"; then
 urls=$(xmllint --xpath '//host/ports/port/script[@id="http-title" and @output!=""]/@output' ResultNmap$nombre | sed -n -E 's/.*(https?|http):\/\/([^/]+).*/\2/p')
 
 for hostname in $urls; do
