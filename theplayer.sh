@@ -78,19 +78,30 @@ ports=$(nmap -p- -n -Pn --min-rate=3000 $ipvictima | grep ^[0-9] | cut -d '/' -f
 echo -e "${LIGHT_BLUE}[+]       Complete NMAP... analizing open ports${NC}"
 echo $ports
 
-    # Verify ports 80.443 is opens http https
+    # Verify ports 80 is open http
+    # todo in full scan filter for open ssl/http para https y open http para http
     
-if echo "$ports" | grep -q "80\|443"; then
-    echo -e "${YELLOW}[+] Find 80 and 443 ports open in IP $ipvictima${NC}"
+if echo "$ports" | grep -q "80"; then
+    echo -e "${YELLOW}[+] Find 80 port open in IP $ipvictima${NC}"
     echo -e "${GREEN}You should run nikto in other terminal${NC}"
     echo -e "${GREEN}nikto -h http://$ipvictima -C all${NC}"
-    echo ""
+    echo "-----------------------"
+    echo -e "${LIGHT_CYAN}[+]          Curl to IP $ipvictima${NC}"
+    echo -e "${YELLOW}"
+    curl -vvv $ipvictima
+    echo -e "${NC}"
+fi
+    # Verify port 443 is open https
+    
+if echo "$ports" | grep -q "443"; then
+    echo -e "${YELLOW}[+] Find 443 port open in IP $ipvictima${NC}"
+    echo -e "${GREEN}You should run nikto in other terminal${NC}"
     echo -e "${GREEN}nikto -h https://$ipvictima -C all${NC}"
     echo ""
     echo "-----------------------"
     echo -e "${LIGHT_CYAN}[+]          Curl to IP $ipvictima${NC}"
     echo -e "${YELLOW}"
-    curl -vvv $ipvictima
+    curl -k -vvv https://$ipvictima
     echo -e "${NC}"
 fi
 
@@ -185,7 +196,7 @@ echo -e "${BLUE}[-] Port 53 DNS is open, try to grab the banner and run metaexpl
 if [[ -n $port_info53 ]]; then
   # launch domain dns search and dig banner grab
    dig version.bind CHAOS TXT @$1
-   msfconsole -q -x "use auxiliary/scanner/dns/dns_amp; set RHOSTS $1; set RPORT 53; run; exit" && msfconsole -q -x "use auxiliary/gather/enum_dns; set RHOSTS $1; set RPORT 53; run; exit"
+   msfconsole -q -x "use auxiliary/scanner/dns/dns_amp; set RHOSTS $ipvictima; set RPORT 53; run; exit" && msfconsole -q -x "use auxiliary/gather/enum_dns; set RHOSTS $ipvictima; set RPORT 53; run; exit"
 else
   echo -e "${BLUE}[-] port 53 DNS is not open.${NC}"
 fi
