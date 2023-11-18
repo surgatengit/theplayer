@@ -83,7 +83,7 @@ echo $ports
     # Verify ports 80 is open http
     # todo in full scan filter for open ssl/http para https y open http para http
     
-if echo "$ports" | grep -q "^80$"; then
+if echo "$ports" | grep -q "\<80\>" ; then
     echo -e "${YELLOW}[+] Find 80 port open in IP $ipvictima${NC}"
     echo -e "${GREEN}You should run nikto in other terminal${NC}"
     echo -e "${GREEN}nikto -h http://$ipvictima -C all${NC}"
@@ -95,7 +95,7 @@ if echo "$ports" | grep -q "^80$"; then
 fi
     # Verify port 443 is open https
     
-if echo "$ports" | grep -q "^443$"; then
+if echo "$ports" | grep -q "\<443\>"; then
     echo -e "${YELLOW}[+] Find 443 port open in IP $ipvictima${NC}"
     echo -e "${GREEN}You should run nikto in other terminal${NC}"
     echo -e "${GREEN}nikto -h https://$ipvictima -C all${NC}"
