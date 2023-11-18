@@ -75,13 +75,15 @@ echo -e "${YELLOW}                80/443 port... Time to Firefox and Burpsuite M
 
 echo -e "${LIGHT_BLUE}[-]       Starts complete NMAP... search all open ports${NC}"
 ports=$(nmap -p- -n -Pn --min-rate=3000 $ipvictima | grep ^[0-9] | cut -d '/' -f 1 | tr '\n' ',' | sed s/,$//)
-echo -e "${LIGHT_BLUE}[+]       Complete NMAP... analizing open ports${NC}"
+echo -e "${LIGHT_BLUE}[+]       Complete NMAP in background... analizing open ports${NC}"
+echo -e "${LIGHT_CYAN}[+]       launch NMAP -sV -sC -Pn ${NC}"
+nmap -p$ports -sV -sC -Pn $ipvictima -oX ResultNmap$nombre &
 echo $ports
 
     # Verify ports 80 is open http
     # todo in full scan filter for open ssl/http para https y open http para http
     
-if echo "$ports" | grep -q "80"; then
+if echo "$ports" | grep -q "^80$"; then
     echo -e "${YELLOW}[+] Find 80 port open in IP $ipvictima${NC}"
     echo -e "${GREEN}You should run nikto in other terminal${NC}"
     echo -e "${GREEN}nikto -h http://$ipvictima -C all${NC}"
@@ -93,7 +95,7 @@ if echo "$ports" | grep -q "80"; then
 fi
     # Verify port 443 is open https
     
-if echo "$ports" | grep -q "443"; then
+if echo "$ports" | grep -q "^443$"; then
     echo -e "${YELLOW}[+] Find 443 port open in IP $ipvictima${NC}"
     echo -e "${GREEN}You should run nikto in other terminal${NC}"
     echo -e "${GREEN}nikto -h https://$ipvictima -C all${NC}"
@@ -119,13 +121,14 @@ if echo "$ports" | grep -q "139\|445"; then
     crackmapexec smb $ipvictima --pass-pol -u "" -p ""
     crackmapexec smb $ipvictima --pass-pol -u guest
 fi
-echo -e "${LIGHT_CYAN}[+]       launch NMAP -sV -sC -Pn ${NC}"
-nmap -p$ports -sV -sC -Pn $ipvictima -oX ResultNmap$nombre
+echo -e "${GREEN}[+] Waiting to finish complete Nmap in background...${NC}"
+wait
 
 ## Host name to /etc/hosts
+echo -e "${YELLOW}[+] Searching for hostnames in Nmap output...${NC}"
 
 # Searching hostnames in Nmap output
-echo -e "${YELLOW}[+] Searching for hostnames in Nmap output...${NC}"
+if echo "$ports" | grep -q "80"; then
 urls=$(xmllint --xpath '//host/ports/port/script[@id="http-title" and @output!=""]/@output' ResultNmap$nombre | sed -n -E 's/.*(https?|http):\/\/([^/]+).*/\2/p')
 
 for hostname in $urls; do
@@ -192,7 +195,7 @@ echo " "
 # Find the <port> tag with the attribute portid="21" and state="open"
 port_info53=$(xmllint --xpath '//port[@portid="53" and state/@state="open"]' ResultNmap$nombre)
 # Check if the <port> tag was found.
-echo -e "${BLUE}[-] Port 53 DNS is open, try to grab the banner and run metaexploy modules dns_amp and enum_dns${NC}"
+echo -e "${BLUE}[-] Port 53 DNS is open, try to grab the banner and run metasploit modules dns_amp and enum_dns${NC}"
 if [[ -n $port_info53 ]]; then
   # launch domain dns search and dig banner grab
    dig version.bind CHAOS TXT @$1
