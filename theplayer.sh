@@ -75,22 +75,35 @@ echo -e "${YELLOW}                80/443 port... Time to Firefox and Burpsuite M
 
 echo -e "${LIGHT_BLUE}[-]       Starts complete NMAP... search all open ports${NC}"
 ports=$(nmap -p- -n -Pn --min-rate=3000 $ipvictima | grep ^[0-9] | cut -d '/' -f 1 | tr '\n' ',' | sed s/,$//)
-echo -e "${LIGHT_BLUE}[+]       Complete NMAP... analizing open ports${NC}"
+echo -e "${LIGHT_BLUE}[+]       Complete NMAP in background... analizing open ports${NC}"
+echo -e "${LIGHT_CYAN}[+]       launch NMAP -sV -sC -Pn ${NC}"
+nmap -p$ports -sV -sC -Pn $ipvictima -oX ResultNmap$nombre &
 echo $ports
 
-    # Verify ports 80.443 is opens http https
+    # Verify ports 80 is open http
+    # todo in full scan filter for open ssl/http para https y open http para http
     
-if echo "$ports" | grep -q "80\|443"; then
-    echo -e "${YELLOW}[+] Find 80 and 443 ports open in IP $ipvictima${NC}"
+if echo "$ports" | grep -q "\<80\>" ; then
+    echo -e "${YELLOW}[+] Find 80 port open in IP $ipvictima${NC}"
     echo -e "${GREEN}You should run nikto in other terminal${NC}"
     echo -e "${GREEN}nikto -h http://$ipvictima -C all${NC}"
-    echo ""
+    echo "-----------------------"
+    echo -e "${LIGHT_CYAN}[+]          Curl to IP $ipvictima${NC}"
+    echo -e "${YELLOW}"
+    curl -vvv $ipvictima
+    echo -e "${NC}"
+fi
+    # Verify port 443 is open https
+    
+if echo "$ports" | grep -q "\<443\>"; then
+    echo -e "${YELLOW}[+] Find 443 port open in IP $ipvictima${NC}"
+    echo -e "${GREEN}You should run nikto in other terminal${NC}"
     echo -e "${GREEN}nikto -h https://$ipvictima -C all${NC}"
     echo ""
     echo "-----------------------"
     echo -e "${LIGHT_CYAN}[+]          Curl to IP $ipvictima${NC}"
     echo -e "${YELLOW}"
-    curl -vvv $ipvictima
+    curl -k -vvv https://$ipvictima
     echo -e "${NC}"
 fi
 
@@ -100,21 +113,25 @@ if echo "$ports" | grep -q "139\|445"; then
     echo -e "${GREEN}[+] Find 139 o 445 open, en IP $ipvictima${NC}"
     echo -e "${YELLOW}[-] Runing enumeration SMB withowt Credentials${NC}"
     nbtscan $ipvictima
+    echo -e "${YELLOW}[-] Runing enumeration SMB withowt Credentials 1/3 ${NC}"
     smbmap -H $ipvictima
+    echo -e "${YELLOW}[-] Runing enumeration SMB withowt Credentials 2/3 ${NC}"
     smbmap -H $ipvictima -u null -p null
+    echo -e "${YELLOW}[-] Runing enumeration SMB withowt Credentials 3/3 ${NC}"
     smbmap -H $ipvictima -u guest
     smbclient -N -L //$ipvictima
     crackmapexec smb $ipvictima
     crackmapexec smb $ipvictima --pass-pol -u "" -p ""
     crackmapexec smb $ipvictima --pass-pol -u guest
 fi
-echo -e "${LIGHT_CYAN}[+]       launch NMAP -sV -sC -Pn ${NC}"
-nmap -p$ports -sV -sC -Pn $ipvictima -oX ResultNmap$nombre
+echo -e "${GREEN}[+] Waiting to finish complete Nmap in background...${NC}"
+
+wait
 
 ## Host name to /etc/hosts
-
-# Searching hostnames in Nmap output
 echo -e "${YELLOW}[+] Searching for hostnames in Nmap output...${NC}"
+echo $ports
+# Searching hostnames in Nmap output
 urls=$(xmllint --xpath '//host/ports/port/script[@id="http-title" and @output!=""]/@output' ResultNmap$nombre | sed -n -E 's/.*(https?|http):\/\/([^/]+).*/\2/p')
 
 for hostname in $urls; do
@@ -176,6 +193,28 @@ else
 fi
 echo " "
 echo " "
+
+## DNS server
+# Find the <port> tag with the attribute portid="21" and state="open"
+port_info53=$(xmllint --xpath '//port[@portid="53" and state/@state="open"]' ResultNmap$nombre)
+# Check if the <port> tag was found.
+echo -e "${BLUE}[-] Port 53 DNS is open, try to grab the banner and run metasploit modules dns_amp and enum_dns${NC}"
+if [[ -n $port_info53 ]]; then
+  # launch domain dns search and dig banner grab
+   dig version.bind CHAOS TXT @$1
+   msfconsole -q -x "use auxiliary/scanner/dns/dns_amp; set RHOSTS $ipvictima; set RPORT 53; run; exit" && msfconsole -q -x "use auxiliary/gather/enum_dns; set RHOSTS $ipvictima; set RPORT 53; run; exit"
+else
+  echo -e "${BLUE}[-] port 53 DNS is not open.${NC}"
+fi
+echo " "
+echo " "
+
+# Puerto 623 IPMI 2  ilo, idrac etc...
+# echo -e "${BLUE}[-] Port 623 try, IDRAC root:calvin  Supermicro ADMIN:ADMIN IBM IMM USERID:PASSW0RD Fujitsu admin:admin Oracle/Sun root:changeme ASUS iKVM BNC admin:admin.${NC}"
+# echo -e "${BLUE}[-] Trying to dump hash...${NC}"
+# msfconsole -q -x "use auxiliary/scanner/ipmi/ipmi_version; set RHOSTS $ipvictima; run; exit" && msfconsole -q -x "use auxiliary/scanner/ipmi/ipmi_dumphashes set RHOSTS $ipvictima; run; exit"
+#
+
 
 # echo -e "${YELLOW}[+] Searching exploitdb...${NC}"
 # searchsploit --nmap ResultNmap$nombre --id
