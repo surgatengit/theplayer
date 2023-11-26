@@ -2,8 +2,8 @@
 
 Test in kali linux
 ```
-Usage: ./theplayer.sh <IP> <NAME OF MACHINE>
-Example: ./theplayer.sh 10.10.10.129 easymachine
+Usage: theplayer <IP> <NAME OF MACHINE>
+Example: theplayer 10.10.10.129 easymachine
 ```
 Initial Enumeration for CTF Boot2Root Machines (Hackthebox).
 
