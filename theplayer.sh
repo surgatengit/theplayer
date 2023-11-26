@@ -43,11 +43,11 @@ handle_interrupt() {
 trap handle_interrupt SIGINT
 
 figlet The Player
-echo "                           Surgat"
+echo "             Version:0.5.0  Surgat"
 
 if [ -z "$ipvictima" ] || [ -z "$nombre" ]; then
-    echo "Usage: ./theplayer.sh <IP> <NAME OF MACHINE>"
-    echo "Example: ./theplayer.sh 10.10.10.129 easymachine"
+    echo "Usage: theplayer <IP> <NAME OF MACHINE>"
+    echo "Example: theplayer 10.10.10.129 easymachine"
     exit 1
 fi
 
