@@ -69,26 +69,29 @@ done
 
 ## Fast Scan and scan al open ports
 
-echo -e "${LIGHT_BLUE}[+]       Fast Scan... ${NC}"
+echo -e "${LIGHT_BLUE}[+]       Fast Scan... \n ${NC}"
 sudo nmap -T4 -F $ipvictima
-echo -e "${YELLOW}                80/443 port... Time to Firefox and Burpsuite Manually${NC}"
+echo -e "${LIGHT_YELLOW}\n[info]             if 80/443 port... Time to Open Firefox and Burpsuite Manually${NC}"
 
-echo -e "${LIGHT_BLUE}[-]       Starts complete NMAP... search all open ports${NC}"
 ports=$(nmap -p- -n -Pn --min-rate=3000 $ipvictima | grep ^[0-9] | cut -d '/' -f 1 | tr '\n' ',' | sed s/,$//)
-echo -e "${LIGHT_BLUE}[+]       Complete NMAP in background... analizing open ports${NC}"
-echo -e "${LIGHT_CYAN}[+]       launch NMAP -sV -sC -Pn ${NC}"
-nmap -p$ports -sV -sC -Pn $ipvictima -oX ResultNmap$nombre &
+echo -e "${LIGHT_BLUE}[+]       Ports open: ${NC}"
 echo $ports
+
+echo -e "${LIGHT_CYAN}[+]       launch in background NMAP -sV -sC -Pn ${NC}"
+nmap -p$ports -sV -sC -Pn $ipvictima -oX ResultNmap$nombre &
+
+echo -e "${LIGHT_BLUE}[+]       working in open ports...  ${NC}"
 
     # Verify ports 80 is open http
     # todo in full scan filter for open ssl/http para https y open http para http
     
 if echo "$ports" | grep -q "\<80\>" ; then
     echo -e "${YELLOW}[+] Find 80 port open in IP $ipvictima${NC}"
-    echo -e "${GREEN}You should run nikto in other terminal${NC}"
-    echo -e "${GREEN}nikto -h http://$ipvictima -C all${NC}"
+    echo -e "${LIGHT_GREEN}\n[info] You should run nikto in other terminal${NC}"
+    echo -e "${LIGHT_GREEN}[info] nikto -h http://$ipvictima -C all${NC}"
     echo "-----------------------"
-    echo -e "${LIGHT_CYAN}[+]          Curl to IP $ipvictima${NC}"
+    echo -e "${LIGHT_CYAN}[+]          Verbose Curl to IP $ipvictima${NC}"
+    echo "-----------------------"
     echo -e "${YELLOW}"
     curl -vvv $ipvictima
     echo -e "${NC}"
