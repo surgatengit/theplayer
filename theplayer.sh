@@ -71,16 +71,16 @@ done
 
 echo -e "${LIGHT_BLUE}[+]       Fast Scan... \n ${NC}"
 sudo nmap -T4 -F $ipvictima
-echo -e "${LIGHT_YELLOW}\n[info]             if 80/443 port... Time to Open Firefox and Burpsuite Manually${NC}"
+echo -e "${LIGHT_YELLOW}\n[info]             if 80/443 port... Time to Open Firefox and Burpsuite Manually\n${NC}"
 
 ports=$(nmap -p- -n -Pn --min-rate=3000 $ipvictima | grep ^[0-9] | cut -d '/' -f 1 | tr '\n' ',' | sed s/,$//)
 echo -e "${LIGHT_BLUE}[+]       Ports open: ${NC}"
 echo $ports
 
-echo -e "${LIGHT_CYAN}[+]       launch in background NMAP -sV -sC -Pn ${NC}"
+echo -e "${LIGHT_BLUE}\n[+]                     launch in background NMAP -sV -sC -Pn \n${NC}"
 nmap -p$ports -sV -sC -Pn $ipvictima -oX ResultNmap$nombre &
 
-echo -e "${LIGHT_BLUE}[+]       working in open ports...  ${NC}"
+echo -e "${LIGHT_BLUE}[+]                       working in open ports...  ${NC}"
 
     # Verify ports 80 is open http
     # todo in full scan filter for open ssl/http para https y open http para http
@@ -99,13 +99,14 @@ fi
     # Verify port 443 is open https
     
 if echo "$ports" | grep -q "\<443\>"; then
-    echo -e "${YELLOW}[+] Find 443 port open in IP $ipvictima${NC}"
-    echo -e "${GREEN}You should run nikto in other terminal${NC}"
-    echo -e "${GREEN}nikto -h https://$ipvictima -C all${NC}"
+    echo -e "${YELLOW}/n[+] Find 443 port open in IP $ipvictima/n${NC}"
+    echo -e "${GREEN}                  You should run nikto in other terminal${NC}"
+    echo -e "${GREEN}                  nikto -h https://$ipvictima -C all${NC}"
     echo ""
     echo "-----------------------"
-    echo -e "${LIGHT_CYAN}[+]          Curl to IP $ipvictima${NC}"
-    echo -e "${YELLOW}"
+    echo -e "${LIGHT_CYAN}[+]          Verbose Curl to IP $ipvictima${NC}"
+    echo "-----------------------"
+    echo -e "${LIGHT_CYAN}"
     curl -k -vvv https://$ipvictima
     echo -e "${NC}"
 fi
@@ -113,7 +114,9 @@ fi
     # Verify ports 139 o 445 are open smb
     
 if echo "$ports" | grep -q "139\|445"; then
-    echo -e "${GREEN}[+] Find 139 o 445 open, en IP $ipvictima${NC}"
+    echo "-----------------------"
+    echo -e "${GREEN}/n[+] Find 139 o 445 open, en IP $ipvictima${NC}"
+    echo "-----------------------/n"
     echo -e "${YELLOW}[-] Runing enumeration SMB withowt Credentials${NC}"
     nbtscan $ipvictima
     echo -e "${YELLOW}[-] Runing enumeration SMB withowt Credentials 1/3 ${NC}"
@@ -127,13 +130,14 @@ if echo "$ports" | grep -q "139\|445"; then
     crackmapexec smb $ipvictima --pass-pol -u "" -p ""
     crackmapexec smb $ipvictima --pass-pol -u guest
 fi
-echo -e "${GREEN}[+] Waiting to finish complete Nmap in background...${NC}"
+echo -e "${GREEN}/n      [-] Waiting to finish complete Nmap in background...${NC}"
 
 wait
 
 ## Host name to /etc/hosts
-echo -e "${YELLOW}[+] Searching for hostnames in Nmap output...${NC}"
-echo $ports
+echo "-----------------------"
+echo -e "${YELLOW}/n[+] Searching for hostnames in Nmap output...${NC}"
+echo "-----------------------"
 # Searching hostnames in Nmap output
 urls=$(xmllint --xpath '//host/ports/port/script[@id="http-title" and @output!=""]/@output' ResultNmap$nombre | sed -n -E 's/.*(https?|http):\/\/([^/]+).*/\2/p')
 
@@ -149,10 +153,10 @@ for hostname in $urls; do
 done
 
 if [ -z "$urls" ]; then
-    echo -e "${LIGHT_CYAN}No hostnames found in the results of Nmap.${NC}"
+    echo -e "${LIGHT_CYAN}/n[-]       No hostnames found in the results of Nmap.${NC}"
 else
     echo ""
-    echo -e "${YELLOW}[+]   Hostnames found:${NC}"
+    echo -e "${YELLOW}/n[+]       Hostnames found:${NC}"
     echo "$urls"
 fi
 
@@ -201,7 +205,7 @@ echo " "
 # Find the <port> tag with the attribute portid="21" and state="open"
 port_info53=$(xmllint --xpath '//port[@portid="53" and state/@state="open"]' ResultNmap$nombre)
 # Check if the <port> tag was found.
-echo -e "${BLUE}[-] Port 53 DNS is open, try to grab the banner and run metasploit modules dns_amp and enum_dns${NC}"
+echo -e "${LIGHT_BLUE}\n[-] Port 53 DNS is open, try to grab the banner and run metasploit modules dns_amp and enum_dns\n${NC}"
 if [[ -n $port_info53 ]]; then
   # launch domain dns search and dig banner grab
    dig version.bind CHAOS TXT @$1
