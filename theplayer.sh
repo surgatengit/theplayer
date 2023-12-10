@@ -1,5 +1,4 @@
 #!/bin/bash
-# Surgat Ramos 0.2.5
 
 BLUE='\033[0;34m'
 GREEN='\033[0;32m' 
