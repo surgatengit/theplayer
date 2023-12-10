@@ -154,8 +154,7 @@ if echo "$ports" | grep -q "139\|445"; then
     nxc smb $ipvictima -u 'guest' -p '' --rid-brute 10000
     echo -e "-----------------------\n"
     echo -e "${YELLOW}[-] Testing NetExec MODULES OF VULNS:${NC}"
-    nxc smb $ipvictima -u 'guest' -p '' -M enum_av -M printnightmare -M shadowcoerce -M petitpotam -M dfscoerce -M gpp_autologin -M gpp_password -M shadowcoerce -M spooler
-    echo -e "-----------------------\n"
+    nxc smb $ipvictima -u 'guest' -p '' -M enum_av -M shadowcoerce -M petitpotam -M dfscoerce -M gpp_autologin -M gpp_password
 fi
 echo -e "${GREEN}\n      [-] Waiting to finish complete Nmap in background...${NC}"
 
