@@ -71,10 +71,10 @@ done
 echo -e "${LIGHT_BLUE}[+]       Fast Scan... \n ${NC}"
 sudo nmap -T4 -F $ipvictima
 echo -e "${LIGHT_YELLOW}\n[info]             if 80/443 port... Time to Open Firefox and Burpsuite Manually\n${NC}"
-
+echo -e "${LIGHT_BLUE}[info]         Please wait, already listing all ports... \n ${NC}"
 ports=$(nmap -p- -n -Pn --min-rate=3000 $ipvictima | grep ^[0-9] | cut -d '/' -f 1 | tr '\n' ',' | sed s/,$//)
 echo -e "${LIGHT_BLUE}[+]       Ports open: ${NC}"
-echo $ports
+echo -e "${LIGHT_BLUE}[+]         $ports ${NC}"
 
 echo -e "${LIGHT_BLUE}\n[+]                     launch in background NMAP -sV -sC -Pn \n${NC}"
 nmap -p$ports -sV -sC -Pn $ipvictima -oX ResultNmap$nombre &
@@ -98,7 +98,7 @@ fi
     # Verify port 443 is open https
     
 if echo "$ports" | grep -q "\<443\>"; then
-    echo -e "${YELLOW}\n[+] Find 443 port open in IP $ipvictima Check https cert for subdomains /n${NC}"
+    echo -e "${YELLOW}\n[+] Find 443 port open in IP $ipvictima Check https cert for subdomains \n${NC}"
     echo -e "${GREEN}                  You should run nikto in other terminal${NC}"
     echo -e "${GREEN}                  nikto -h https://$ipvictima -C all${NC}"
     echo ""
@@ -126,39 +126,39 @@ fi
 if echo "$ports" | grep -q "139\|445"; then
     echo "-----------------------"
     echo -e "${GREEN}\n[+] Find 139 o 445 open, en IP $ipvictima${NC}"
-    echo "-----------------------/n"
+    echo "-----------------------"
     echo -e "${YELLOW}[-] Runing enumeration SMB,LDAP,rpc, withowt Credentials, enum4linux-ng:${NC}"
     enum4linux-ng -Adv -oA enum4linuxreultado $ipvictima
-    echo "-----------------------/n"
-    echo -e "${YELLOW}[-] Runing enumeration SMB withowt Credentials, ntbscan:${NC}"
-    nbtscan $ipvictima
+    echo "-----------------------"
+#    echo -e "${YELLOW}[-] Runing enumeration SMB withowt Credentials, ntbscan:${NC}"
+#    nbtscan $ipvictima
 #   echo -e "${YELLOW}[-] Runing enumeration SMB withowt Credentials 1/3 ${NC}"
 #   smbmap -H $ipvictima
 #   echo -e "${YELLOW}[-] Runing enumeration SMB withowt Credentials 2/3 ${NC}"
 #   smbmap -H $ipvictima -u null -p null
 #   echo -e "${YELLOW}[-] Runing enumeration SMB withowt Credentials 3/3 ${NC}"
 #   smbmap -H $ipvictima -u guest
-    echo "-----------------------/n"
+    echo "-----------------------"
     echo -e "${YELLOW}[-] smbclient:${NC}"
     smbclient -N -L //$ipvictima
 #   crackmapexec smb $ipvictima
-    echo -e "${YELLOW}[-] SMB and password policy with crackmapexec blank user and password:${NC}"
-    crackmapexec smb $ipvictima --pass-pol -u "" -p ""
-    echo -e "${YELLOW}[-] SMB and password policy with crackmapexec user guest:${NC}"
-    crackmapexec smb $ipvictima --pass-pol -u guest
-    echo "-----------------------/n"
-    echo -e "${YELLOW}[-] Testing NetExec first only for shares:${NC}"
-    nxc smb $ipvictima -u 'guest' -p '' --shares
-    echo "-----------------------/n"
-    echo -e "${YELLOW}[-] Testing NetExec first only for shares AND FILTER ONLY FOR SUBSCRIBERS ONLY READ WRITE:${NC}"
+#    echo -e "${YELLOW}[-] SMB and password policy with crackmapexec blank user and password:${NC}"
+#    crackmapexec smb $ipvictima --pass-pol -u "" -p ""
+#    echo -e "${YELLOW}[-] SMB and password policy with crackmapexec user guest:${NC}"
+#    crackmapexec smb $ipvictima --pass-pol -u guest
+#    echo -e "-----------------------\n"
+#    echo -e "${YELLOW}[-] Testing NetExec first only for shares:${NC}"
+#    nxc smb $ipvictima -u 'guest' -p '' --shares
+    echo -e "-----------------------\n"
+    echo -e "${YELLOW}[-] NetExec shares AND FILTER ONLY READ WRITE:${NC}"
     nxc smb $ipvictima -u 'guest' -p '' --shares --filter-shares READ WRITE
-    echo "-----------------------/n"
+    echo -e "-----------------------\n"
     echo -e "${YELLOW}[-] Testing NetExec bruteforce users:${NC}"
     nxc smb $ipvictima -u 'guest' -p '' --rid-brute 10000
-    echo "-----------------------/n"
+    echo -e "-----------------------\n"
     echo -e "${YELLOW}[-] Testing NetExec MODULES OF VULNS:${NC}"
-    nxc smb $ipvictima -u 'guest' -p '' -M enum_av -M spooler -M printnightmare -M shadowcoerce -M petitpotam -M dfscoerce -M gpp_autologin -M gpp_password -M shadowcoerce -M spooler
-    echo "-----------------------/n"
+    nxc smb $ipvictima -u 'guest' -p '' -M enum_av -M printnightmare -M shadowcoerce -M petitpotam -M dfscoerce -M gpp_autologin -M gpp_password -M shadowcoerce -M spooler
+    echo -e "-----------------------\n"
 fi
 echo -e "${GREEN}\n      [-] Waiting to finish complete Nmap in background...${NC}"
 
