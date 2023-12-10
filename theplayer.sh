@@ -71,15 +71,15 @@ done
 echo -e "${LIGHT_BLUE}[+]       Fast Scan... \n ${NC}"
 sudo nmap -T4 -F $ipvictima
 echo -e "${LIGHT_YELLOW}\n[info]             if 80/443 port... Time to Open Firefox and Burpsuite Manually\n${NC}"
-echo -e "${LIGHT_BLUE}[info]         Please wait, already listing all ports... \n ${NC}"
+echo -e "${LIGHT_BLUE}[info]                 Please wait, already listing all ports... \n ${NC}"
 ports=$(nmap -p- -n -Pn --min-rate=3000 $ipvictima | grep ^[0-9] | cut -d '/' -f 1 | tr '\n' ',' | sed s/,$//)
-echo -e "${LIGHT_BLUE}[+]       Ports open: ${NC}"
-echo -e "${LIGHT_BLUE}[+]         $ports ${NC}"
+echo -e "${LIGHT_BLUE}[+]         Ports open: ${NC}"
+echo -e "${LIGHT_BLUE}\n[+]         $ports ${NC}"
 
-echo -e "${LIGHT_BLUE}\n[+]                     launch in background NMAP -sV -sC -Pn \n${NC}"
+echo -e "${LIGHT_BLUE}\n[info]                     launch in background NMAP -sV -sC -Pn \n${NC}"
 nmap -p$ports -sV -sC -Pn $ipvictima -oX ResultNmap$nombre &
 
-echo -e "${LIGHT_BLUE}[+]                       working in open ports...  ${NC}"
+echo -e "${LIGHT_BLUE}[info]                       working in open ports...  ${NC}"
 
     # Verify ports 80 is open http
     # todo in full scan filter for open ssl/http para https y open http para http
@@ -124,12 +124,9 @@ fi
     # Verify ports 139 o 445 are open smb
     
 if echo "$ports" | grep -q "139\|445"; then
-    echo "-----------------------"
-    echo -e "${GREEN}\n[+] Find 139 o 445 open, en IP $ipvictima${NC}"
-    echo "-----------------------"
-    echo -e "${YELLOW}[-] Runing enumeration SMB,LDAP,rpc, withowt Credentials, enum4linux-ng:${NC}"
+    echo -e "${GREEN}\n[+] Find 139 o 445 open, en IP $ipvictima\n${NC}"
+    echo -e "${YELLOW}[-] Runing enumeration SMB, LDAP, RPC, without Credentials using enum4linux-ng:\n${NC}"
     enum4linux-ng -Adv -oA enum4linuxreultado $ipvictima
-    echo "-----------------------"
 #    echo -e "${YELLOW}[-] Runing enumeration SMB withowt Credentials, ntbscan:${NC}"
 #    nbtscan $ipvictima
 #   echo -e "${YELLOW}[-] Runing enumeration SMB withowt Credentials 1/3 ${NC}"
@@ -150,10 +147,10 @@ if echo "$ports" | grep -q "139\|445"; then
 #    echo -e "${YELLOW}[-] Testing NetExec first only for shares:${NC}"
 #    nxc smb $ipvictima -u 'guest' -p '' --shares
     echo -e "-----------------------\n"
-    echo -e "${YELLOW}[-] NetExec shares AND FILTER ONLY READ WRITE:${NC}"
+    echo -e "${YELLOW}[-] NetExec shares FILTER ONLY READ WRITE:${NC}"
     nxc smb $ipvictima -u 'guest' -p '' --shares --filter-shares READ WRITE
     echo -e "-----------------------\n"
-    echo -e "${YELLOW}[-] Testing NetExec bruteforce users:${NC}"
+    echo -e "${YELLOW}[-]    NetExec bruteforce users:${NC}"
     nxc smb $ipvictima -u 'guest' -p '' --rid-brute 10000
     echo -e "-----------------------\n"
     echo -e "${YELLOW}[-] Testing NetExec MODULES OF VULNS:${NC}"
