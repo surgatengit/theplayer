@@ -110,17 +110,17 @@ if echo "$ports" | grep -q "\<443\>"; then
     echo -e "${NC}"
 fi
 
-# ldap and search for aspreproast
+# ldap and search for aspreproast temporaly disabled 
 
-if echo "$ports" | grep -q "389\|3268\|636\|3269"; then
-    echo "-----------------------"
-    echo -e "${GREEN}\n[+] Find 389 o 3268 open, en IP $ipvictima${NC}"
-    echo "-----------------------/n"
-    echo -e "${YELLOW}[-] Runing search for asreproast:${NC}"
-    nxc ldap $ipvictima -u 'guest' -p '' --asreproast output.txt
-    echo -e "${GREEN}\n    if is vulnerable for aspreproast use  hashcat -m18200 output.txt wordlist ${NC}"
-echo "-----------------------/n"
-
+# if echo "$ports" | grep -q "389\|3268\|636\|3269"; then
+#    echo "-----------------------"
+#    echo -e "${GREEN}\n[+] Find 389 o 3268 open, en IP $ipvictima${NC}"
+#    echo "-----------------------/n"
+#    echo -e "${YELLOW}[-] Runing search for asreproast:${NC}"
+#    nxc ldap $ipvictima -u 'guest' -p '' --asreproast output.txt
+#    echo -e "${GREEN}\n    if is vulnerable for aspreproast use  hashcat -m18200 output.txt wordlist ${NC}"
+#    echo "-----------------------/n"
+#fi
     # Verify ports 139 o 445 are open smb
     
 if echo "$ports" | grep -q "139\|445"; then
