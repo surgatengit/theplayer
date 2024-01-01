@@ -16,6 +16,18 @@ LIGHT_PURPLE='\033[1;35m'
 WHITE='\033[1;37m'
 NC='\033[0m' # No color
 
+#Default variables
+ldaps_bool=false    # 389 3268 and ldpas 636 and 3269
+
+#Programs to variable
+netexec=$(which netexec)
+smbmap=$(which smbmap)
+pre2k=$(which pre2k) #in test
+coercer=$(which coercer)
+rdwatool=$(which rdwatool) #search for image png to validate cool
+nmap=$(which nmap)
+john=$(which john)
+
 ipvictima=$1
 nombre=$2
 
