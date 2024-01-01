@@ -10,6 +10,15 @@ Initial Enumeration for CTF Boot2Root Machines (Hackthebox).
 For learning purposes don't use in real environments even in unreal. 
 
 install in kali
+
+First install please run setup.sh
+
+One liner
+```
+wget https://raw.githubusercontent.com/surgatengit/theplayer/main/setup.sh && chmod +x setup.sh && sh setup.sh
+```
+
+Last version oneliner installer
 ```
 wget https://raw.githubusercontent.com/surgatengit/theplayer/main/theplayer.sh && chmod u+x theplayer.sh && mv theplayer.sh /home/kali/.local/bin/theplayer 
 ```
