@@ -92,7 +92,7 @@ echo -e "${LIGHT_BLUE}[i]     Continue testing... \n ${NC}"
 if echo "$ports" | grep -q "\<80\>" ; then
     echo -e "${YELLOW}[+] Find open port 80 in IP $ipvictima${NC}\n"
     echo -e "-----------------------"
-    echo -e "${LIGHT_CYAN}[+]          Verbose Curl to IP $ipvictima save to curl80 file always check${NC}"
+    echo -e "${LIGHT_CYAN}[+]Curl to IP $ipvictima save to curl80 file${NC}"
     echo -e "${LIGHT_BLUE}gobuster dir -w /usr/share/wordlists/seclists/Discovery/Web-Content/raft-small-words.txt -k -b 404 -t 100 -u http://$nombre.htb/ -o gobuster.dir.out ${NC}\n"
     echo -e "${LIGHT_BLUE}gobuster vhost -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt -k -u http://$nombre.htb -o gobuster.vhost.out${NC}\n"
     echo "-----------------------"
@@ -107,7 +107,7 @@ fi
 if echo "$ports" | grep -q "\<443\>"; then
     echo -e "${YELLOW}\n[+] Find open port 443 in IP $nombre , please review certificates for subdomains \n${NC}"
     echo -e "\n-----------------------"
-    echo -e "${LIGHT_CYAN}[+]          Verbose Curl to IP $ipvictima save file to curl443$nombre  ${NC}"
+    echo -e "${LIGHT_CYAN}[+]Curl to IP $ipvictima save file to curl443  ${NC}"
     echo -e "${GREEN}gobuster dir -w /usr/share/wordlists/seclists/Discovery/Web-Content/raft-small-words.txt -k -b 404 -t 100 -u https://$nombre.htb/ -o gobuster.dir.out ${NC}\n"
     echo -e "${GREEN}gobuster vhost -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt -k -u https://$nombre.htb -o gobuster.vhost.out${NC}\n"
     echo "-----------------------"
