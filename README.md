@@ -1,5 +1,10 @@
 # The player
 
+For first three days use thearena.
+For the rest use theseason.
+To run you need to add your jwt token in the code.
+
+
 Test in kali linux
 ```
 Usage: theplayer <IP> <NAME OF MACHINE>
@@ -18,7 +23,7 @@ One liner
 wget https://raw.githubusercontent.com/surgatengit/theplayer/main/setup.sh && chmod +x setup.sh && sh setup.sh
 ```
 
-Last version oneliner installer
+Last version oneline installer
 ```
 wget https://raw.githubusercontent.com/surgatengit/theplayer/main/theplayer.sh && chmod u+x theplayer.sh && mv theplayer.sh /home/kali/.local/bin/theplayer 
 ```
