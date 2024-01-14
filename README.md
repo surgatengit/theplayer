@@ -1,17 +1,10 @@
 # theplayer
 
-He does very few things but he does them very well.
-They tell you when the machine is published but not when you connect
-Tired of repeating the same processes in the initial stages
-# All this has a solution and instantly 3 mins you pwnd user in bizness, just run thearena and you will be connected with the initial tools launched and with that data deciding the true first attack.
-
-Enjoy
-
-For first three days use thearena.
-For the rest use theseason.
+theseason.
 To run you need to add your jwt token in the code.
 
-The player goes to stan by until new order 
+
+The player goes to stanby.
 --------------
 Test in kali linux
 ```
