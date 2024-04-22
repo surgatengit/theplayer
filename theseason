@@ -77,6 +77,7 @@ sudo nmap -T4 -F "$ipvictima"
 echo -e "${LIGHT_YELLOW}\n[i] While the tests are running you can check the above ports.   ${NC}"
 echo -e "${LIGHT_BLUE}[i] Testing all ports... ${NC}"
 
+echo -e "${LIGHT_BLUE}[i] Create in hosts "$ipvictima $nombre.htb"... ${NC}"
 echo "$ipvictima $nombre.htb" | sudo tee -a /etc/hosts >/dev/null
 
 ports=$(nmap -p- -n -Pn --min-rate=3000 "$ipvictima" | grep "^[0-9]" | cut -d '/' -f 1 | tr '\n' ',' | sed s/,$//)
