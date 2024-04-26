@@ -49,8 +49,9 @@ echo -e "\n${BLUE}[i] Your token expiration date is: $expiration_date${NC}"
 echo -e "\n${YELLOW}[+]Spawn Machine... ${NC}"
 curl -s -k --compressed -X $'POST' -H $'Host: labs.hackthebox.com' -H $'User-Agent: ThePlayer' -H "Authorization: Bearer $TOKEN" -H $'Origin: https://app.hackthebox.com' -H $'Referer: https://app.hackthebox.com/' -H $'Sec-Fetch-Dest: empty' -H $'Sec-Fetch-Mode: cors' -H $'Sec-Fetch-Site: same-site' -H $'Content-Length: 0' -H $'Te: trailers' $'https://labs.hackthebox.com/api/v4/arena/start' |jq . -r
 
-echo -e "${YELLOW}[+]Status of HTB servers... ${NC}"
-curl -s -q https://status.hackthebox.com/api/v2/status.json|jq .status -r
+# don't works since april 2024
+# echo -e "${YELLOW}[+]Status of HTB servers... ${NC}"
+# curl -s -q https://status.hackthebox.com/api/v2/status.json|jq .status -r
 
 echo -e "\n${YELLOW}[+] Machine info:${NC}"
 
@@ -137,7 +138,7 @@ if echo "$ports" | grep -q "139\|445"; then
     nxc smb "$ipvictima" -u 'guest' -p '' --rid-brute 10000
     echo -e "$-----------------------\n"
     echo -e "${LIGHT_BLUE}[i] Testing NetExec MODULES OF VULNS:${NC}"
-    nxc smb "$ipvictima" -u 'guest' -p '' -M enum_av -M shadowcoerce -M petitpotam -M dfscoerce -M gpp_autologin -M gpp_password
+    nxc smb "$ipvictima" -u 'guest' -p '' -M shadowcoerce -M petitpotam -M dfscoerce
 fi
 echo -e "${LIGHT_BLUE}\n[i] Waiting to finish complete Nmap in background...${NC}"
 
