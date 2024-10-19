@@ -138,7 +138,7 @@ if echo "$ports" | grep -q "139\|445"; then
     nxc smb "$ipvictima" -u 'guest' -p '' --rid-brute 10000
     echo -e "$-----------------------\n"
     echo -e "${LIGHT_BLUE}[i] Testing NetExec MODULES OF VULNS:${NC}"
-    nxc smb "$ipvictima" -u 'guest' -p '' -M shadowcoerce -M petitpotam -M dfscoerce
+    nxc smb "$ipvictima" -u 'guest' -p '' -M petitpotam
 fi
 echo -e "${LIGHT_BLUE}\n[i] Waiting to finish complete Nmap in background...${NC}"
 
@@ -163,7 +163,7 @@ while IFS= read -r hostname; do
         uniqueHostnames["$hostname"]=1
         if ! grep -q "$hostname" /etc/hosts; then
             echo -e "${LIGHT_BLUE}[i] Adding ${LIGHT_GREEN}$hostname${LIGHT_BLUE} to /etc/hosts${NC}"
-            echo "$ipvictima $(dig +short "$hostname")$hostname # added by theseasson" | sudo tee -a /etc/hosts >/dev/null
+            echo "$ipvictima $(dig +short "$hostname")$hostname # added by theseason" | sudo tee -a /etc/hosts >/dev/null
         else
             echo -e "${LIGHT_BLUE}[i] Skip adding hostname because it already exists in /etc/hosts${NC}"
         fi
@@ -215,5 +215,8 @@ if [[ -n $port_info53 ]]; then
   dig version.bind CHAOS TXT @"$1"
   msfconsole -q -x "use auxiliary/scanner/dns/dns_amp; set RHOSTS $ipvictima; set RPORT 53; run; exit" && msfconsole -q -x "use auxiliary/gather/enum_dns; set RHOSTS $ipvictima; set RPORT 53; run; exit"
 fi
+
+echo -e "${LIGHT_BLUE}\n[i] Complete VHOST Scan, 1000 Threats, filter content 301 and 40x errors${NC}\n"
+ffuf -c -u http://$nombre.htb -H "Host:FUZZ.nombre.htb" -w /usr/share/seclists/Discovery/DNS/n0kovo_subdomains.txt -fc 301 -t 1000
 
 echo -e "${YELLOW}\n[+]Bye...  ${NC}"
