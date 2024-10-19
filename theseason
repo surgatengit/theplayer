@@ -47,11 +47,36 @@ expiration_date=$(date -d @"$expiration_unix_timestamp")
 echo -e "\n${BLUE}[i] Your token expiration date is: $expiration_date${NC}"
 
 echo -e "\n${YELLOW}[+]Spawn Machine... ${NC}"
-curl -s -k --compressed -X $'POST' -H $'Host: labs.hackthebox.com' -H $'User-Agent: ThePlayer' -H "Authorization: Bearer $TOKEN" -H $'Origin: https://app.hackthebox.com' -H $'Referer: https://app.hackthebox.com/' -H $'Sec-Fetch-Dest: empty' -H $'Sec-Fetch-Mode: cors' -H $'Sec-Fetch-Site: same-site' -H $'Content-Length: 0' -H $'Te: trailers' $'https://labs.hackthebox.com/api/v4/arena/start' |jq . -r
 
-# don't works since april 2024
-# echo -e "${YELLOW}[+]Status of HTB servers... ${NC}"
-# curl -s -q https://status.hackthebox.com/api/v2/status.json|jq .status -r
+active_machine_id=$(curl -s -k --compressed -X $'GET' \
+-H $'Host: labs.hackthebox.com' \
+-H $'User-Agent: ThePlayer' \
+-H $'Accept: application/json, text/plain, */*' \
+-H $'Accept-Language: es-ES,es;q=0.8,en-US;q=0.5,en;q=0.3' \
+-H $'Accept-Encoding: gzip, deflate, br' \
+-H "Authorization: Bearer $TOKEN" \
+-H $'Origin: https://app.hackthebox.com' \
+-H $'Referer: https://app.hackthebox.com/' \
+-H $'Sec-Fetch-Dest: empty' \
+-H $'Sec-Fetch-Mode: cors' \
+-H $'Sec-Fetch-Site: same-site' \
+-H $'Te: trailers' \
+$'https://labs.hackthebox.com/api/v4/season/machine/active' | jq -r '.data.id')
+
+curl -s -k --compressed -X $'POST' \
+-H $'Host: labs.hackthebox.com' \
+-H $'User-Agent: ThePlayer' \
+-H "Authorization: Bearer $TOKEN" \
+-H $'Origin: https://app.hackthebox.com' \
+-H $'Referer: https://app.hackthebox.com/' \
+-H $'Sec-Fetch-Dest: empty' \
+-H $'Sec-Fetch-Mode: cors' \
+-H $'Sec-Fetch-Site: same-site' \
+-H $'Content-Length: 18' \
+-H $'Content-Type: application/json' \
+-H $'Te: trailers' \
+--data-binary $'{"machine_id":'"$active_machine_id"'}' \
+$'https://labs.hackthebox.com/api/v4/vm/spawn' |jq . -r
 
 echo -e "\n${YELLOW}[+] Machine info:${NC}"
 
@@ -138,7 +163,7 @@ if echo "$ports" | grep -q "139\|445"; then
     nxc smb "$ipvictima" -u 'guest' -p '' --rid-brute 10000
     echo -e "$-----------------------\n"
     echo -e "${LIGHT_BLUE}[i] Testing NetExec MODULES OF VULNS:${NC}"
-    nxc smb "$ipvictima" -u 'guest' -p '' -M petitpotam
+    nxc smb "$ipvictima" -u 'guest' -p '' -M shadowcoerce -M petitpotam -M dfscoerce
 fi
 echo -e "${LIGHT_BLUE}\n[i] Waiting to finish complete Nmap in background...${NC}"
 
@@ -163,7 +188,7 @@ while IFS= read -r hostname; do
         uniqueHostnames["$hostname"]=1
         if ! grep -q "$hostname" /etc/hosts; then
             echo -e "${LIGHT_BLUE}[i] Adding ${LIGHT_GREEN}$hostname${LIGHT_BLUE} to /etc/hosts${NC}"
-            echo "$ipvictima $(dig +short "$hostname")$hostname # added by theseason" | sudo tee -a /etc/hosts >/dev/null
+            echo "$ipvictima $(dig +short "$hostname")$hostname # added by theseasson" | sudo tee -a /etc/hosts >/dev/null
         else
             echo -e "${LIGHT_BLUE}[i] Skip adding hostname because it already exists in /etc/hosts${NC}"
         fi
@@ -216,7 +241,7 @@ if [[ -n $port_info53 ]]; then
   msfconsole -q -x "use auxiliary/scanner/dns/dns_amp; set RHOSTS $ipvictima; set RPORT 53; run; exit" && msfconsole -q -x "use auxiliary/gather/enum_dns; set RHOSTS $ipvictima; set RPORT 53; run; exit"
 fi
 
-echo -e "${LIGHT_BLUE}\n[i] Complete VHOST Scan, 1000 Threats, filter content 301 and 40x errors${NC}\n"
+echo -e "${LIGHT_BLUE}\n[i] Complete VHOST Scan, 1000 Threats, filter content 301 and 40x errors CTRL+C to exit${NC}\n"
 ffuf -c -u http://$nombre.htb -H "Host:FUZZ.nombre.htb" -w /usr/share/seclists/Discovery/DNS/n0kovo_subdomains.txt -fc 301 -t 1000
 
 echo -e "${YELLOW}\n[+]Bye...  ${NC}"
