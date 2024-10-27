@@ -80,7 +80,19 @@ $'https://labs.hackthebox.com/api/v4/vm/spawn' |jq . -r
 
 echo -e "\n${YELLOW}[+] Machine info:${NC}"
 
-json_response_season=$(curl -s -k --compressed -X $'GET' -H $'Host: labs.hackthebox.com' -H $'User-Agent: ThePlayer' -H $'Accept: application/json, text/plain, */*' -H $'Accept-Language: es-ES,es;q=0.8,en-US;q=0.5,en;q=0.3' -H $'Accept-Encoding: gzip, deflate, br' -H "Authorization: Bearer $TOKEN" -H $'Origin: https://app.hackthebox.com' -H $'Referer: https://app.hackthebox.com/' -H $'Sec-Fetch-Dest: empty' -H $'Sec-Fetch-Mode: cors' -H $'Sec-Fetch-Site: same-site' -H $'Te: trailers' $'https://labs.hackthebox.com/api/v4/season/machine/active')
+json_response_season=$(curl -s -k --compressed -X $'GET' \
+-H $'Host: labs.hackthebox.com' \
+-H $'User-Agent: ThePlayer' \
+-H $'Accept: application/json, text/plain, */*' \
+-H $'Accept-Language: es-ES,es;q=0.8,en-US;q=0.5,en;q=0.3' \
+-H $'Accept-Encoding: gzip, deflate, br' \
+-H "Authorization: Bearer $TOKEN" \
+-H $'Origin: https://app.hackthebox.com' \
+-H $'Referer: https://app.hackthebox.com/' \
+-H $'Sec-Fetch-Dest: empty' \
+-H $'Sec-Fetch-Mode: cors' \
+-H $'Sec-Fetch-Site: same-site' \
+-H $'Te: trailers' $'https://labs.hackthebox.com/api/v4/season/machine/active')
 
 ipvictima=$(echo "$json_response_season" | jq -r '.data.ip')
 nombre=$(echo "$json_response_season" | jq -r '.data.name')
@@ -103,7 +115,7 @@ sudo nmap -T4 -F "$ipvictima"
 echo -e "${LIGHT_YELLOW}\n[i] While the tests are running you can check the above ports.   ${NC}"
 echo -e "${LIGHT_BLUE}[i] Testing all ports... ${NC}"
 
-echo -e "${LIGHT_BLUE}[i] Create in hosts "$ipvictima $nombre.htb"... ${NC}"
+echo -e "${LIGHT_BLUE}[i] Added in \\etc\\hosts this: "$ipvictima $nombre.htb" ${NC}"
 echo "$ipvictima $nombre.htb" | sudo tee -a /etc/hosts >/dev/null
 
 ports=$(nmap -p- -n -Pn --min-rate=3000 "$ipvictima" | grep "^[0-9]" | cut -d '/' -f 1 | tr '\n' ',' | sed s/,$//)
