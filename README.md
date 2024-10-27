@@ -1,18 +1,14 @@
 # theseason
-Run the setup.sh (dependencies and programs).
 
-Download theseason to theseason.sh.
-Do chmod +x theseason.sh.
-Grab your htb token and put in the code.
-Connect to HTB vpn.
-And run ./theseason.sh.
-Enjoy.
+- Run the setup.sh (dependencies).
+- Download theseason to theseason.sh
+- Do chmod +x theseason.sh
+- Grab your htb token My Profile - PROFILE SETTINGS - APP TOKENS - CREATE TOKEN and put in the code.
+- Connect to HTB vpn
+- And run ./theseason.sh
+- Enjoy
 
 # theplayer
-
-theseason.
-To run you need to add your jwt token in the code.
-
 
 The player goes to stanby.
 --------------
