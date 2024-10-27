@@ -108,15 +108,17 @@ while ! ping -c 1 "$ipvictima" >/dev/null; do
     sleep 1
 done
 
+## Artifical host add
+
+echo -e "${LIGHT_GREEN}[i] Added in \\\\etc\\\\hosts this: "$ipvictima $nombre.htb" ${NC}"
+echo "$ipvictima $nombre.htb" | sudo tee -a /etc/hosts >/dev/null
+
 ## Fast Scan and scan al open ports
 
 echo -e "${LIGHT_BLUE}[+]Fast nmap scan \n ${NC}"
 sudo nmap -T4 -F "$ipvictima"
 echo -e "${LIGHT_YELLOW}\n[i] While the tests are running you can check the above ports.   ${NC}"
 echo -e "${LIGHT_BLUE}[i] Testing all ports... ${NC}"
-
-echo -e "${LIGHT_BLUE}[i] Added in \\etc\\hosts this: "$ipvictima $nombre.htb" ${NC}"
-echo "$ipvictima $nombre.htb" | sudo tee -a /etc/hosts >/dev/null
 
 ports=$(nmap -p- -n -Pn --min-rate=3000 "$ipvictima" | grep "^[0-9]" | cut -d '/' -f 1 | tr '\n' ',' | sed s/,$//)
 echo -e "${LIGHT_BLUE}[+] Ports open: ${NC}"
@@ -177,7 +179,7 @@ if echo "$ports" | grep -q "139\|445"; then
     echo -e "${LIGHT_BLUE}[i] Testing NetExec MODULES OF VULNS:${NC}"
     nxc smb "$ipvictima" -u 'guest' -p '' -M shadowcoerce -M petitpotam -M dfscoerce
 fi
-echo -e "${LIGHT_BLUE}\n[i] Waiting to finish complete Nmap in background...${NC}"
+echo -e "${LIGHT_BLUE}\n[i] Waiting for the Nmap background scan to complete... a sound will alert you when it's finished successfully.${NC}"
 
 wait
 paplay /usr/share/sounds/freedesktop/stereo/complete.oga
@@ -253,7 +255,9 @@ if [[ -n $port_info53 ]]; then
   msfconsole -q -x "use auxiliary/scanner/dns/dns_amp; set RHOSTS $ipvictima; set RPORT 53; run; exit" && msfconsole -q -x "use auxiliary/gather/enum_dns; set RHOSTS $ipvictima; set RPORT 53; run; exit"
 fi
 
+## Complete VHOST FUZZ
 echo -e "${LIGHT_BLUE}\n[i] Complete VHOST Scan, 1000 Threats, filter content 301 and 40x errors CTRL+C to exit${NC}\n"
 ffuf -c -u http://$nombre.htb -H "Host:FUZZ.nombre.htb" -w /usr/share/seclists/Discovery/DNS/n0kovo_subdomains.txt -fc 301 -t 1000
-
+echo -e "${LIGHT_BLUE}\n[i] ...a sound will alert you when it's finished successfully.${NC}"
+paplay /usr/share/sounds/freedesktop/stereo/complete.oga
 echo -e "${YELLOW}\n[+]Bye...  ${NC}"
