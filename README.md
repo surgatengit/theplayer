@@ -1,3 +1,13 @@
+# theseason
+Run the setup.sh (dependencies and programs).
+
+Download theseason to theseason.sh.
+Do chmod +x theseason.sh.
+Grab your htb token and put in the code.
+Connect to HTB vpn.
+And run ./theseason.sh.
+Enjoy.
+
 # theplayer
 
 theseason.
