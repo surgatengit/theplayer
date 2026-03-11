@@ -180,7 +180,7 @@ resolve_redirect() {
 
     for ((i=0; i<max_hops; i++)); do
         local headers
-        headers=$(curl -s -I -o /dev/null -w "%{http_code} %{redirect_url}" $curl_opts "$current_url")
+        headers=$(curl -s -I -o /dev/null -w "%{http_code} %{redirect_url}" --max-time 15 $curl_opts "$current_url")
         local code="${headers%% *}"
         local redirect_url="${headers#* }"
 
@@ -246,15 +246,14 @@ enum_web() {
 
     banner "WEB ENUM - ${scheme}://${IP}:${port}"
 
-    info "Curl headers (checking for redirects)..."
-    curl -s -I $curl_opts "$base_url" | tee "$OUTDIR/curl_${scheme}_headers.txt"
+    run_show "Curl headers" curl -s -I --max-time 15 $curl_opts "$base_url" | tee "$OUTDIR/curl_${scheme}_headers.txt"
 
     local target_url
     target_url=$(resolve_redirect "$base_url" "$curl_opts")
 
     if [ "$target_url" != "$base_url" ]; then
         success "Final target after redirects: ${BOLD}$target_url${NC}"
-        curl -s -I $curl_opts "$target_url" | tee "$OUTDIR/curl_${scheme}_final_headers.txt"
+        run_show "Curl headers (final)" curl -s -I --max-time 15 $curl_opts "$target_url" | tee "$OUTDIR/curl_${scheme}_final_headers.txt"
     fi
 
     local final_url="$target_url"
@@ -262,7 +261,8 @@ enum_web() {
     label=$(echo "$final_url" | sed 's|https\?://||;s|[/:.]|_|g;s|_$||')
 
     info "Verifying connectivity to $final_url ..."
-    if ! curl -s -o /dev/null -w "%{http_code}" $curl_opts --max-time 5 "$final_url" | grep -qE '^[23]'; then
+    show_cmd "fg" curl -s -o /dev/null -w "%{http_code}" $curl_opts --max-time 20 "$final_url"
+    if ! curl -s -o /dev/null -w "%{http_code}" $curl_opts --max-time 20 "$final_url" | grep -qE '^[23]'; then
         error "Cannot reach $final_url — check /etc/hosts and DNS. Skipping web enum."
         return 1
     fi
